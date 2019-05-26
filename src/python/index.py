@@ -202,7 +202,10 @@ def get_content(model, num_relays):
     content = content + "</table>"
     
     m = model.get_model()
-    return content.format(m[1].replace(" ", "&nbsp;"),m[2].replace(" ", "&nbsp;"),m[3].replace(" ", "&nbsp;"),m[4].replace(" ", "&nbsp;"),m[5].replace(" ", "&nbsp;"),m[6].replace(" ", "&nbsp;"),m[7].replace(" ", "&nbsp;"),m[8].replace(" ", "&nbsp;"))
+    if num_relays == 4:
+        return content.format(m[1].replace(" ", "&nbsp;"),m[2].replace(" ", "&nbsp;"),m[3].replace(" ", "&nbsp;"),m[4].replace(" ", "&nbsp;"))
+    else:
+        return content.format(m[1].replace(" ", "&nbsp;"),m[2].replace(" ", "&nbsp;"),m[3].replace(" ", "&nbsp;"),m[4].replace(" ", "&nbsp;"),m[5].replace(" ", "&nbsp;"),m[6].replace(" ", "&nbsp;"),m[7].replace(" ", "&nbsp;"),m[8].replace(" ", "&nbsp;"))
 
 #-------------------------------------------------
 # Updater HTML

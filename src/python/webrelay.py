@@ -24,7 +24,8 @@
 #
 
 # System imports
-import os.path
+import os, sys
+import json
 
 # Library imports
 import cherrypy
@@ -35,22 +36,21 @@ import index
 import webrelay_gpio
 import webrelay_model
 
-# Create and restore the model
-model = webrelay_model.WebRelayModel()
-model.restore_model()
-
 #=====================================================
 # The main application class
 #===================================================== 
 class WebRelay:
 
-    def __init__(self, model, num_relays)
+    def __init__(self, model, num_relays):
+        self.__model = model
+        self.__num_relays = num_relays
+        
     # Expose the index method through the web
     @cherrypy.expose
     def index(self):
         # CherryPy will call this method for the root URI ("/") and send
         # its return value to the client. 
-        return index.get_index(model, num_relays)
+        return index.get_index(self.__model, self.__num_relays)
 
 #=====================================================
 # The web service class
@@ -120,15 +120,16 @@ if __name__ == '__main__':
             try:
                 with open(conf_path) as json_data_file:
                     app_conf = json.load(json_data_file)
-            except:
-                print("Unable to load Json configuration file!")
+            except Exception as e:
+                print("Unable to load Json configuration file! [%s]" % (str(e)))
                 sys.exit()
-            
-            # Create and restore the model
-            model = webrelay_model.WebRelayModel()
-            model.restore_model()
+                
             num_relays = app_conf["num_relays"]
             pin_map = app_conf["pin_map"]
+            
+            # Create and restore the model
+            model = webrelay_model.WebRelayModel(num_relays)
+            model.restore_model()
             
             # Get configuration file
             cherrypy_conf = os.path.join(os.path.dirname(__file__), 'cherrypy.conf')
