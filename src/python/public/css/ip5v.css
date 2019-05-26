@@ -1,0 +1,106 @@
+/*
+# ip5v.css
+#
+# Styles for the 5v IP switch HTML
+# 
+# Copyright (C) 2019 by G3UKB Bob Cowdery
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#    
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#    
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#    
+#  The author can be reached by email at:   
+#     bob@bobcowdery.plus.com
+#
+*/
+
+/*-------------------------------------------------*/
+/* Style by id */
+#container {
+	position: relative;
+	top: 10px;
+	left: 10px;
+	text-align: left;
+}
+
+#header {
+	background-color: rgba(64,128,128, 0.5);
+	text-align: center;
+	position: relative;
+	right: 10px;
+}
+
+#content {
+	margin: 10px auto;
+	width: 500px;
+}
+
+#update {
+	margin: 10px auto;
+	width: 500px;
+}
+
+#footer {
+	clear: both;
+	background-color: rgba(64,128,128, 0.5);
+	position: relative;
+	top: 20px;
+	right: 10px;
+	text-align: center;
+}
+
+#response {
+	background-color: rgba(64,128,128, 0.5);
+	width: 385px;
+	height: 25px;
+}
+
+#name-col {
+	width: 300px;
+}
+
+#relays_apply {
+	background-color: rgba(159,0,0,0.5);
+	width: 90px;
+	height: 25px;
+}
+
+/*-------------------------------------------------*/
+/* Style by class */
+.names {
+	width: 300px;
+	background-color: rgba(228,228,228, 0.5);
+}
+
+/*-------------------------------------------------*/
+/* Style by type */
+table, th, td {
+	border-style: solid;
+	border-color: black;
+	border-width: 1px;
+}
+
+th, td {
+	padding: 5px;
+	text-align: left;
+}
+
+th {
+	background-color: rgba(64,128,128, 0.5);
+	color: white;
+	text-align: center;
+}
+
+td {
+	background-color: rgba(170,170,170, 0.5);
+	color: black;
+}
