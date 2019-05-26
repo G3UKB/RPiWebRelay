@@ -42,14 +42,14 @@ def get_index(model, num_relays):
     index_html = '''
     <html>
     <head>
-        <link href="/static/css/ip5v.css" rel="stylesheet">
+        <link href="/static/css/webrelay.css" rel="stylesheet">
         <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
         <script type="text/javascript">
           $(document).ready(function() {
             $("#relays_apply").click(function(e) {
               $.ajax({
                 type: "PUT",
-                url: "/ip5v_service",
+                url: "/webrelay_service",
                 data: {
                         %s
                     }
@@ -72,7 +72,6 @@ def get_index(model, num_relays):
     </body>
     </html>
     ''' % (get_data(num_relays), get_header(), get_content(model, num_relays), get_update(), get_footer())
-
     return index_html
 
 #==============================================================================================
@@ -114,6 +113,7 @@ def get_data(num_relays):
             "rly_8": $("input[name='relay-8']:checked").val()
 
         '''
+    return data
         
 #-------------------------------------------------
 # Header HTML

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 #
-# ip5v_web.py
+# webrelay.py
 #
-# Web application for control of 5v IP switch
+# Web application for control of RPi relay boards
 # 
 # Copyright (C) 2019 by G3UKB Bob Cowdery
 # This program is free software; you can redistribute it and/or modify
@@ -49,17 +49,18 @@ class WebRelay:
     @cherrypy.expose
     def index(self):
         # CherryPy will call this method for the root URI ("/") and send
-        # its return value to the client. 
+        # its return value to the client.
         return index.get_index(self.__model, self.__num_relays)
 
 #=====================================================
 # The web service class
-#===================================================== 
+#=====================================================
+@cherrypy.expose
 class WebRelayWebService(object):
     
     def __init__(self, num_relays, pin_map):
         # Create web relay instance
-        GPIO = webrelay_gpio.GPIOControl(num_relays, pin_map)
+        self.GPIO = webrelay_gpio.GPIOControl(num_relays, pin_map)
         
     @cherrypy.tools.accept(media='text/plain')
     #-------------------------------------------------
@@ -71,38 +72,36 @@ class WebRelayWebService(object):
     # Called by a POST request
     def POST(self, data):
         return "POST called"
-
+    
     #-------------------------------------------------
     # Called by a DELETE request
     def DELETE(self):
         return "DELETE called"
 
-@cherrypy.expose
 class WebRelayWebService_4(WebRelayWebService):
 
     #-------------------------------------------------
     # Called by a PUT request
-    def PUT(self, rly_1_name, rly_2_name, rly_3_name, rly_4_name):
-        for relay in [[0,rly_1],[1,rly_2],[2,rly_3],[3,rly_4],[4,rly_5]]:
-            self.__GPIO.set_relay(relay[0], relay[1])
+    def PUT(self, rly_1_name, rly_2_name, rly_3_name, rly_4_name, rly_1, rly_2, rly_3, rly_4):
+        for relay in [[0,rly_1],[1,rly_2],[2,rly_3],[3,rly_4]]:
+            self.GPIO.set_relay(relay[0], relay[1])
         for name in [[1,rly_1_name],[2,rly_2_name],[3,rly_3_name],[4,rly_4_name]]:
             model.update_model(name[0], name[1])
         model.save_model()
         return "Relays set!"
 
-@cherrypy.expose
 class WebRelayWebService_8(WebRelayWebService):
 
     #-------------------------------------------------
     # Called by a PUT request
     def PUT(self, rly_1_name, rly_2_name, rly_3_name, rly_4_name, rly_5_name, rly_6_name, rly_7_name, rly_8_name, rly_1, rly_2, rly_3, rly_4, rly_5, rly_6, rly_7, rly_8):
         for relay in [[0,rly_1],[1,rly_2],[2,rly_3],[3,rly_4],[4,rly_5],[5,rly_6],[6,rly_7],[7,rly_8]]:
-            self.__GPIO.set_relay(relay[0], relay[1])
+            self.GPIO.set_relay(relay[0], relay[1])
         for name in [[1,rly_1_name],[2,rly_2_name],[3,rly_3_name],[4,rly_4_name],[5,rly_5_name],[6,rly_6_name],[7,rly_7_name],[8,rly_8_name]]:
             model.update_model(name[0], name[1])
         model.save_model()
         return "Relays set!"
-    
+
 #==============================================================================================
 # Main code
 #==============================================================================================
