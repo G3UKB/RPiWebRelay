@@ -37,7 +37,7 @@ import pickle
  
 #-------------------------------------------------
 # Main index HTML     
-def get_index(model, num_relays):
+def get_index(name, model, num_relays):
     
     index_html = '''
     <html>
@@ -71,7 +71,7 @@ def get_index(model, num_relays):
         </div>
     </body>
     </html>
-    ''' % (get_data(num_relays), get_header(), get_content(model, num_relays), get_update(), get_footer())
+    ''' % (get_data(num_relays), get_header(name), get_content(model, num_relays), get_update(), get_footer())
     return index_html
 
 #==============================================================================================
@@ -117,8 +117,8 @@ def get_data(num_relays):
         
 #-------------------------------------------------
 # Header HTML
-def get_header():     
-    return "<h1>Web Relay Switcher</h1>"
+def get_header(name):     
+    return "<h1>%s</h1>" % (name)
 
 #-------------------------------------------------
 # Content HTML

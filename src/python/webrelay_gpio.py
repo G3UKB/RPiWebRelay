@@ -41,10 +41,11 @@ except ModuleNotFoundError:
 #===================================================== 
 class GPIOControl:
     
-    def __init__(self, num_relays, pin_map):
+    def __init__(self, num_relays, pin_map, inverse):
         
         self.__num_relays = num_relays
         self.__pin_map = pin_map
+        self.__inverse = inverse
         
         if not testing:
             # Set to use actual port numbering rather than pon numbering
@@ -53,7 +54,10 @@ class GPIOControl:
             for relay in range(0,num_relays):
                 pin = self.__pin_for_relay(pin_map, relay)
                 GPIO.setup(pin, GPIO.OUT)
-                GPIO.output(pin, GPIO.HIGH)
+                if inverse:
+                    GPIO.output(pin, GPIO.HIGH)
+                else:
+                    GPIO.output(pin, GPIO.LOW)
 
     
     #==============================================================================================
@@ -68,9 +72,15 @@ class GPIOControl:
             print("Setting pin %d to state %s" % (pin, state))
         else:
             if state == 'on':
-                GPIO.output(pin, GPIO.LOW)
+                if self.__inverse:
+                    GPIO.output(pin, GPIO.LOW)
+                else:
+                    GPIO.output(pin, GPIO.HIGH)
             else:
-                GPIO.output(pin, GPIO.HIGH)
+                if self.__inverse:
+                    GPIO.output(pin, GPIO.HIGH)
+                else:
+                    GPIO.output(pin, GPIO.LOW)
     
     #==============================================================================================
     # PRIVATE

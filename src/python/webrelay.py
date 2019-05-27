@@ -41,7 +41,8 @@ import webrelay_model
 #===================================================== 
 class WebRelay:
 
-    def __init__(self, model, num_relays):
+    def __init__(self, name, model, num_relays):
+        self.__name = name
         self.__model = model
         self.__num_relays = num_relays
         
@@ -50,7 +51,7 @@ class WebRelay:
     def index(self):
         # CherryPy will call this method for the root URI ("/") and send
         # its return value to the client.
-        return index.get_index(self.__model, self.__num_relays)
+        return index.get_index(self.__name, self.__model, self.__num_relays)
 
 #=====================================================
 # The web service class
@@ -58,9 +59,9 @@ class WebRelay:
 @cherrypy.expose
 class WebRelayWebService(object):
     
-    def __init__(self, num_relays, pin_map):
+    def __init__(self, num_relays, pin_map, inverse):
         # Create web relay instance
-        self.GPIO = webrelay_gpio.GPIOControl(num_relays, pin_map)
+        self.GPIO = webrelay_gpio.GPIOControl(num_relays, pin_map, inverse)
         
     @cherrypy.tools.accept(media='text/plain')
     #-------------------------------------------------
@@ -122,9 +123,11 @@ if __name__ == '__main__':
             except Exception as e:
                 print("Unable to load Json configuration file! [%s]" % (str(e)))
                 sys.exit()
-                
+            
+            name = app_conf["name"]    
             num_relays = app_conf["num_relays"]
             pin_map = app_conf["pin_map"]
+            inverse = app_conf["inverse"]
             
             # Create and restore the model
             model = webrelay_model.WebRelayModel(num_relays)
@@ -133,11 +136,11 @@ if __name__ == '__main__':
             # Get configuration file
             cherrypy_conf = os.path.join(os.path.dirname(__file__), 'cherrypy.conf')
             # Create web app instances
-            webapp = WebRelay(model, num_relays)
+            webapp = WebRelay(name, model, num_relays)
             if num_relays == 4:
-                webapp.webrelay_service = WebRelayWebService_4(num_relays, pin_map)
+                webapp.webrelay_service = WebRelayWebService_4(num_relays, pin_map, inverse)
             elif num_relays == 8:
-                webapp.webrelay_service = WebRelayWebService_8(num_relays, pin_map)
+                webapp.webrelay_service = WebRelayWebService_8(num_relays, pin_map, inverse)
             # Start
             cherrypy.quickstart(webapp, config=cherrypy_conf)
         else:
