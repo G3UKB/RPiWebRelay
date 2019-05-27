@@ -38,8 +38,8 @@ import webrelay_gpio
 #===================================================== 
 class WebRelayMin(object):
     @cherrypy.expose
-    def index(self):
-        return "Web Relay - Minimal Web Application"
+    def index(self, name):
+        return "%s - Minimal Web Application" % (name)
 
     @cherrypy.expose
     def set_relay(self, relay='1', state='off'):
@@ -65,13 +65,18 @@ if __name__ == '__main__':
                 print("Unable to load Json configuration file!")
                 sys.exit()
             
+            name = app_conf["name"]    
+            num_relays = app_conf["num_relays"]
+            pin_map = app_conf["pin_map"]
+            inverse = app_conf["inverse"]
+            
             # Create web relay instance
-            GPIO = webrelay_gpio.GPIOControl(app_conf["num_relays"], app_conf["pin_map"])
+            GPIO = webrelay_gpio.GPIOControl(num_relays, pin_map, inverse)
             
             # Get configuration file
             cherrypy_conf = os.path.join(os.path.dirname(__file__), 'cherrypy_min.conf')
             # Start
-            cherrypy.quickstart(WebRelayMin(), config=cherrypy_conf)
+            cherrypy.quickstart(WebRelayMin(name), config=cherrypy_conf)
         else:
             print("Configuration file not found!")
     
