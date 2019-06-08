@@ -48,7 +48,7 @@ class GPIOControl:
         self.__inverse = inverse
         
         if not testing:
-            # Set to use actual port numbering rather than pon numbering
+            # Set to use actual port numbering rather than pin numbering
             GPIO.setmode(GPIO.BCM)
             # Set all to output and state off (note inverted logic) as we are driving relays
             for relay in range(0,num_relays):
@@ -65,11 +65,7 @@ class GPIOControl:
     #==============================================================================================
       
     #-------------------------------------------------
-    # Set the relay to the given state
-    def set_relay(self, relay, state):
-        pin = self.__pin_for_relay(self.__pin_map, relay)
-        if testing:
-            print("Setting pin %d to state %s" % (pin, state))
+     htting pin %d to state %s" % (pin, state))
         else:
             if state == 'on':
                 if self.__inverse:
