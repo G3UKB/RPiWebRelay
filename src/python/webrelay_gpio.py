@@ -65,7 +65,11 @@ class GPIOControl:
     #==============================================================================================
       
     #-------------------------------------------------
-     htting pin %d to state %s" % (pin, state))
+    # Set the relay to the given state
+    def set_relay(self, relay, state):
+        pin = self.__pin_for_relay(self.__pin_map, relay)
+        if testing:
+            print("Setting pin %d to state %s" % (pin, state))
         else:
             if state == 'on':
                 if self.__inverse:
