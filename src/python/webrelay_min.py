@@ -37,9 +37,13 @@ import webrelay_gpio
 # The main application class
 #===================================================== 
 class WebRelayMin(object):
+    
+    def __init__(self, name):
+        self.__name = name
+        
     @cherrypy.expose
-    def index(self, name):
-        return "%s - Minimal Web Application" % (name)
+    def index(self):
+        return "%s - Minimal Web Application" % (self.__name)
 
     @cherrypy.expose
     def set_relay(self, relay='1', state='off'):
