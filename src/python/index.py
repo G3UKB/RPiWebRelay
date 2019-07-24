@@ -141,15 +141,17 @@ def get_content(model, num_relays):
     
     for id in range(1, num_relays+1):
         content = content + ''' <tr>
-            <td>1</td>
+            <td>%d</td>
             <td><input type="text" class="names" name="relay-%d-name" value={}></td>
             <td>
                 <input type="radio" name="relay-%d" checked="false" value="on">On
                 <input type="radio" name="relay-%d" checked="true" value="off">Off
             </td>
-        </tr> ''' % (id, id, id)
-        content.format(m[id].replace(" ", "&nbsp;"))
+        </tr> ''' % (id, id, id, id)
+        content = content.format(m[id].replace(" ", "&nbsp;")) 
     content = content + "</table>"
+    
+    return content
     
     '''
     content = 
