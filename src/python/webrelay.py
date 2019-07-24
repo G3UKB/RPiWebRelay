@@ -103,6 +103,18 @@ class WebRelayWebService_8(WebRelayWebService):
         model.save_model()
         return "Relays set!"
 
+class WebRelayWebService_12(WebRelayWebService):
+
+    #-------------------------------------------------
+    # Called by a PUT request
+    def PUT(self, rly_1_name, rly_2_name, rly_3_name, rly_4_name, rly_5_name, rly_6_name, rly_7_name, rly_8_name, rly_9_name, rly_10_name, rly_11_name, rly_12_name, rly_1, rly_2, rly_3, rly_4, rly_5, rly_6, rly_7, rly_8, rly_9, rly_10, rly_11, rly_12):
+        for relay in [[0,rly_1],[1,rly_2],[2,rly_3],[3,rly_4],[4,rly_5],[5,rly_6],[6,rly_7],[7,rly_8],[8,rly_9],[9,rly_10],[10,rly_11],[11,rly_12]]:
+            self.GPIO.set_relay(relay[0], relay[1])
+        for name in [[1,rly_1_name],[2,rly_2_name],[3,rly_3_name],[4,rly_4_name],[5,rly_5_name],[6,rly_6_name],[7,rly_7_name],[8,rly_8_name],[9,rly_9_name],[10,rly_10_name],[11,rly_11_name],[12,rly_12_name]]:
+            model.update_model(name[0], name[1])
+        model.save_model()
+        return "Relays set!"
+    
 #==============================================================================================
 # Main code
 #==============================================================================================
