@@ -82,8 +82,13 @@ def get_index(name, model, num_relays):
 # Data HTML
 def get_data(num_relays):     
 
+    data = ''
+    for id in range(1, num_relays+1):
+        data = data + "\'rly_%d_name\' : $(\'input[name=\'relay-%d-name\']\').val()" % (id,id)
+        
+    '''    
     if num_relays == 4:
-        data = '''
+        data = 
             "rly_1_name": $("input[name='relay-1-name']").val(),
             "rly_2_name": $("input[name='relay-2-name']").val(),
             "rly_3_name": $("input[name='relay-3-name']").val(),
@@ -92,9 +97,9 @@ def get_data(num_relays):
             "rly_2": $("input[name='relay-2']:checked").val(),
             "rly_3": $("input[name='relay-3']:checked").val(),
             "rly_4": $("input[name='relay-4']:checked").val(),
-        '''
+        
     else: 
-        data = '''
+        data = 
             "rly_1_name": $("input[name='relay-1-name']").val(),
             "rly_2_name": $("input[name='relay-2-name']").val(),
             "rly_3_name": $("input[name='relay-3-name']").val(),
@@ -111,8 +116,8 @@ def get_data(num_relays):
             "rly_6": $("input[name='relay-6']:checked").val(),
             "rly_7": $("input[name='relay-7']:checked").val(),
             "rly_8": $("input[name='relay-8']:checked").val()
-
-        '''
+        
+    '''   
     return data
         
 #-------------------------------------------------
@@ -125,6 +130,28 @@ def get_header(name):
 def get_content(model, num_relays):
     
     content = '''
+    <table id=tmain>
+        <tr>
+            <th>Relay</th>
+            <th id="name-col">Name</th>
+            <th>Control</th>
+        </tr>
+    '''
+    
+    for id in range(1, num_relays+1):
+        content = content + ''' <tr>
+            <td>1</td>
+            <td><input type="text" class="names" name="relay-%d-name" value={}></td>
+            <td>
+                <input type="radio" name="relay-%d" checked="false" value="on">On
+                <input type="radio" name="relay-%d" checked="true" value="off">Off
+            </td>
+        </tr> ''' % (id, id, id)
+        content.format(m[id].replace(" ", "&nbsp;"))
+    content = content + "</table>"
+    
+    '''
+    content = 
     <table id=tmain>
         <tr>
             <th>Relay</th>
@@ -163,9 +190,9 @@ def get_content(model, num_relays):
                 <input type="radio" name="relay-4" checked="true" value="off">Off
             </td>
         </tr>
-    '''
+    
     if num_relays == 8:
-        content = content + '''
+        content = content + 
         <tr>
             <td>5</td>
             <td><input type="text" class="names" name="relay-5-name" value={}></td>
@@ -198,7 +225,7 @@ def get_content(model, num_relays):
                 <input type="radio" name="relay-8" checked="true" value="off">Off
             </td>
         </tr>
-    '''
+    
     content = content + "</table>"
     
     m = model.get_model()
@@ -206,7 +233,8 @@ def get_content(model, num_relays):
         return content.format(m[1].replace(" ", "&nbsp;"),m[2].replace(" ", "&nbsp;"),m[3].replace(" ", "&nbsp;"),m[4].replace(" ", "&nbsp;"))
     else:
         return content.format(m[1].replace(" ", "&nbsp;"),m[2].replace(" ", "&nbsp;"),m[3].replace(" ", "&nbsp;"),m[4].replace(" ", "&nbsp;"),m[5].replace(" ", "&nbsp;"),m[6].replace(" ", "&nbsp;"),m[7].replace(" ", "&nbsp;"),m[8].replace(" ", "&nbsp;"))
-
+    '''
+    
 #-------------------------------------------------
 # Updater HTML
 def get_update():
