@@ -84,40 +84,10 @@ def get_data(num_relays):
 
     data = ''
     for id in range(1, num_relays+1):
-        data = data + "\'rly_%d_name\' : $(\'input[name=\'relay-%d-name\']\').val()" % (id,id)
-        
-    '''    
-    if num_relays == 4:
-        data = 
-            "rly_1_name": $("input[name='relay-1-name']").val(),
-            "rly_2_name": $("input[name='relay-2-name']").val(),
-            "rly_3_name": $("input[name='relay-3-name']").val(),
-            "rly_4_name": $("input[name='relay-4-name']").val(),
-            "rly_1": $("input[name='relay-1']:checked").val(),
-            "rly_2": $("input[name='relay-2']:checked").val(),
-            "rly_3": $("input[name='relay-3']:checked").val(),
-            "rly_4": $("input[name='relay-4']:checked").val(),
-        
-    else: 
-        data = 
-            "rly_1_name": $("input[name='relay-1-name']").val(),
-            "rly_2_name": $("input[name='relay-2-name']").val(),
-            "rly_3_name": $("input[name='relay-3-name']").val(),
-            "rly_4_name": $("input[name='relay-4-name']").val(),
-            "rly_5_name": $("input[name='relay-5-name']").val(),
-            "rly_6_name": $("input[name='relay-6-name']").val(),
-            "rly_7_name": $("input[name='relay-7-name']").val(),
-            "rly_8_name": $("input[name='relay-8-name']").val(),
-            "rly_1": $("input[name='relay-1']:checked").val(),
-            "rly_2": $("input[name='relay-2']:checked").val(),
-            "rly_3": $("input[name='relay-3']:checked").val(),
-            "rly_4": $("input[name='relay-4']:checked").val(),
-            "rly_5": $("input[name='relay-5']:checked").val(),
-            "rly_6": $("input[name='relay-6']:checked").val(),
-            "rly_7": $("input[name='relay-7']:checked").val(),
-            "rly_8": $("input[name='relay-8']:checked").val()
-        
-    '''   
+        data = data + "\"rly_%d_name\": $(\"input[name=\'relay-%d-name\']\").val()," % (id,id)
+    for id in range(1, num_relays+1):
+        data = data + "\"rly_%d\": $(\"input[name=\'relay-%d\']:checked\").val()," % (id,id)
+    
     return data
         
 #-------------------------------------------------
@@ -153,90 +123,6 @@ def get_content(model, num_relays):
     
     return content
     
-    '''
-    content = 
-    <table id=tmain>
-        <tr>
-            <th>Relay</th>
-            <th id="name-col">Name</th>
-            <th>Control</th>
-        </tr>
-        <tr>
-            <td>1</td>
-            <td><input type="text" class="names" name="relay-1-name" value={}></td>
-            <td>
-                <input type="radio" name="relay-1" checked="false" value="on">On
-                <input type="radio" name="relay-1" checked="true" value="off">Off
-            </td>
-        </tr>
-        <tr>
-            <td>2</td>
-            <td><input type="text" class="names" name="relay-2-name" value={}></td>
-            <td>
-                <input type="radio" name="relay-2" checked="false" value="on">On
-                <input type="radio" name="relay-2" checked="true" value="off">Off
-            </td>
-        </tr>
-        <tr>
-            <td>3</td>
-            <td><input type="text" class="names" name="relay-3-name" value={}></td>
-            <td>
-                <input type="radio" name="relay-3" checked="false" value="on">On
-                <input type="radio" name="relay-3" checked="true" value="off">Off
-            </td>
-        </tr>
-        <tr>
-            <td>4</td>
-            <td><input type="text" class="names" name="relay-4-name" value={}></td>
-            <td>
-                <input type="radio" name="relay-4" checked="false" value="on">On
-                <input type="radio" name="relay-4" checked="true" value="off">Off
-            </td>
-        </tr>
-    
-    if num_relays == 8:
-        content = content + 
-        <tr>
-            <td>5</td>
-            <td><input type="text" class="names" name="relay-5-name" value={}></td>
-            <td>
-                <input type="radio" name="relay-5" checked="false" value="on">On
-                <input type="radio" name="relay-5" checked="true" value="off">Off
-            </td>
-        </tr>
-        <tr>
-            <td>6</td>
-            <td><input type="text" class="names" name="relay-6-name" value={}></td>
-            <td>
-                <input type="radio" name="relay-6" checked="false" value="on">On
-                <input type="radio" name="relay-6" checked="true" value="off">Off
-            </td>
-        </tr>
-        <tr>
-            <td>7</td>
-            <td><input type="text" class="names" name="relay-7-name" value={}></td>
-            <td>
-                <input type="radio" name="relay-7" checked="false" value="on">On
-                <input type="radio" name="relay-7" checked="true" value="off">Off
-            </td>
-        </tr>
-        <tr>
-            <td>8</th>
-            <td><input type="text" class="names" name="relay-8-name" value={}></th>
-            <td>
-                <input type="radio" name="relay-8" checked="false" value="on">On
-                <input type="radio" name="relay-8" checked="true" value="off">Off
-            </td>
-        </tr>
-    
-    content = content + "</table>"
-    
-    m = model.get_model()
-    if num_relays == 4:
-        return content.format(m[1].replace(" ", "&nbsp;"),m[2].replace(" ", "&nbsp;"),m[3].replace(" ", "&nbsp;"),m[4].replace(" ", "&nbsp;"))
-    else:
-        return content.format(m[1].replace(" ", "&nbsp;"),m[2].replace(" ", "&nbsp;"),m[3].replace(" ", "&nbsp;"),m[4].replace(" ", "&nbsp;"),m[5].replace(" ", "&nbsp;"),m[6].replace(" ", "&nbsp;"),m[7].replace(" ", "&nbsp;"),m[8].replace(" ", "&nbsp;"))
-    '''
     
 #-------------------------------------------------
 # Updater HTML
