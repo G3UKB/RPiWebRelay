@@ -129,6 +129,7 @@ def get_header(name):
 # Content HTML
 def get_content(model, num_relays):
     
+    m = model.get_model()
     content = '''
     <table id=tmain>
         <tr>
