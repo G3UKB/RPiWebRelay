@@ -153,6 +153,8 @@ if __name__ == '__main__':
                 webapp.webrelay_service = WebRelayWebService_4(num_relays, pin_map, inverse)
             elif num_relays == 8:
                 webapp.webrelay_service = WebRelayWebService_8(num_relays, pin_map, inverse)
+            elif num_relays == 12:
+                webapp.webrelay_service = WebRelayWebService_12(num_relays, pin_map, inverse)
             # Start
             cherrypy.quickstart(webapp, config=cherrypy_conf)
         else:
