@@ -103,7 +103,7 @@ def get_content(model, num_relays):
     content = '''
     <table id=tmain>
         <tr>
-            <th>Relay</th>
+            <th>Channel</th>
             <th id="name-col">Name</th>
             <th>Control</th>
         </tr>

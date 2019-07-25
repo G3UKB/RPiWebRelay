@@ -259,6 +259,12 @@ if __name__ == '__main__':
             cherrypy_conf = os.path.join(os.path.dirname(__file__), 'cherrypy.conf')
             # Create web app instances
             webapp = WebRelay(name, model, num_relays)
+            webService = [WebRelayWebService_1, WebRelayWebService_2, WebRelayWebService_3, WebRelayWebService_4,
+                          WebRelayWebService_5,WebRelayWebService_6,WebRelayWebService_7,WebRelayWebService_8,
+                          WebRelayWebService_9,WebRelayWebService_10,WebRelayWebService_11,WebRelayWebService_12]
+            webapp.webrelay_service = webService[num_relays-1](num_relays, pin_map, inverse)
+            
+            '''
             if num_relays == 1:
                 webapp.webrelay_service = WebRelayWebService_1(num_relays, pin_map, inverse)
             elif num_relays == 2:
@@ -283,6 +289,7 @@ if __name__ == '__main__':
                 webapp.webrelay_service = WebRelayWebService_11(num_relays, pin_map, inverse)
             elif num_relays == 12:
                 webapp.webrelay_service = WebRelayWebService_12(num_relays, pin_map, inverse)
+            '''
             # Start
             cherrypy.quickstart(webapp, config=cherrypy_conf)
         else:
