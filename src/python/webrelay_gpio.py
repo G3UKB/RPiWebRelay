@@ -58,7 +58,7 @@ class GPIOControl:
             for channel in range(0,num_relays):
                 # We can have a number of relay sets to activate for one channel
                 for pin_set in pin_map:
-                    self.__set_pin(self, pin_set, channel, inverse)
+                    self.__set_pin(pin_set, channel, inverse)
             # See if we have any additional relays
             if self.__ch_map_on != None:
                 for channel in self.__ch_map_on[1]:
