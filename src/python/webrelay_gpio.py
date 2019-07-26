@@ -71,12 +71,12 @@ class GPIOControl:
     # Set the pin mode
     def __set_pin(self, a_map, channel, inverse):
         pin = self.__pin_for_ch(a_map, channel)
-            if pin != None:
-                GPIO.setup(pin, GPIO.OUT)
-                if inverse:
-                    GPIO.output(pin, GPIO.HIGH)
-                else:
-                    GPIO.output(pin, GPIO.LOW)
+        if pin != None:
+            GPIO.setup(pin, GPIO.OUT)
+            if inverse:
+                GPIO.output(pin, GPIO.HIGH)
+            else:
+                GPIO.output(pin, GPIO.LOW)
                             
     #==============================================================================================
     # PUBLIC
@@ -86,7 +86,7 @@ class GPIOControl:
     # Set the channel to the given state
     def set_channel(self, channel, state):
         for pin_set in self.__pin_map:
-            pin = self.__pin_for_relay(pin_set, channel)
+            pin = self.__pin_for_ch(pin_set, channel)
             if pin != None:
                 if testing:
                     print("Setting pin %d to state %s" % (pin, state))
@@ -104,20 +104,26 @@ class GPIOControl:
                             GPIO.output(pin, GPIO.LOW)
         # See if we have any additional relays
         if self.__ch_map_on != None:
-            if len(set(self.__ch_map_on).intersection(self.__ch_on)) > 0:
+            if len(list(set(self.__ch_map_on[0]).intersection(self.__ch_on))) > 0:
                 # At least one channel requires the relays to be on
                 for relay in self.__ch_map_on[1]:
-                    if self.__inverse:
-                        GPIO.output(pin, GPIO.LOW)
+                    if testing:
+                        print("Setting pin %d to state %s" % (relay, 'on'))
                     else:
-                        GPIO.output(pin, GPIO.HIGH)
+                        if self.__inverse:
+                            GPIO.output(relay, GPIO.LOW)
+                        else:
+                            GPIO.output(relay, GPIO.HIGH)
             else:
-                # Turn the relays off
+                # Otherwise turn the relays off
                 for relay in self.__ch_map_on[1]:
-                    if self.__inverse:
-                        GPIO.output(pin, GPIO.HIGH)
+                    if testing:
+                        print("Setting pin %d to state %s" % (relay, 'on'))
                     else:
-                        GPIO.output(pin, GPIO.LOW)
+                        if self.__inverse:
+                            GPIO.output(relay, GPIO.HIGH)
+                        else:
+                            GPIO.output(relay, GPIO.LOW)
                     
     #==============================================================================================
     # PRIVATE
