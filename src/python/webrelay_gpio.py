@@ -41,43 +41,58 @@ except ModuleNotFoundError:
 #===================================================== 
 class GPIOControl:
     
-    def __init__(self, num_relays, pin_map, inverse):
+    def __init__(self, num_relays, pin_map, ch_map_on, ch_map_off, inverse):
         
         self.__num_relays = num_relays
         self.__pin_map = pin_map
+        self.__ch_map_on = ch_map_on
+        self.__ch_map_off = ch_map_off
         self.__inverse = inverse
+        
+        self.__ch_on = []
         
         if not testing:
             # Set to use actual port numbering rather than pin numbering
             GPIO.setmode(GPIO.BCM)
             # Set all to output and state off (note inverted logic) as we are driving relays
-            for relay in range(0,num_relays):
+            for channel in range(0,num_relays):
                 # We can have a number of relay sets to activate for one channel
                 for pin_set in pin_map:
-                    pin = self.__pin_for_relay(pin_set, relay)
-                    if pin != None:
-                        GPIO.setup(pin, GPIO.OUT)
-                        if inverse:
-                            GPIO.output(pin, GPIO.HIGH)
-                        else:
-                            GPIO.output(pin, GPIO.LOW)
-
-    
+                    self.__set_pin(self, pin_set, inverse)
+            # See if we have any additional relays
+            if self.__ch_map_on != None:
+                for channel in self.__ch_map_on[1]:
+                    self.__set_pin(self, self.__ch_map_on[1], channel, inverse)
+            if self.__ch_map_off != None:
+                for channel in self.__ch_map_off[1]:
+                    self.__set_pin(self, self.__ch_map_off[1], channel, inverse)
+                            
+    #-------------------------------------------------
+    # Set the pin mode
+    def __set_pin(self, a_map, channel, inverse):
+        pin = self.__pin_for_ch(a_map, channel)
+            if pin != None:
+                GPIO.setup(pin, GPIO.OUT)
+                if inverse:
+                    GPIO.output(pin, GPIO.HIGH)
+                else:
+                    GPIO.output(pin, GPIO.LOW)
+                            
     #==============================================================================================
     # PUBLIC
     #==============================================================================================
       
     #-------------------------------------------------
-    # Set the relay to the given state
-    def set_relay(self, relay, state):
-        
+    # Set the channel to the given state
+    def set_channel(self, channel, state):
         for pin_set in self.__pin_map:
-            pin = self.__pin_for_relay(pin_set, relay)
+            pin = self.__pin_for_relay(pin_set, channel)
             if pin != None:
                 if testing:
                     print("Setting pin %d to state %s" % (pin, state))
                 else:
                     if state == 'on':
+                        self.__ch_on.append(channel)
                         if self.__inverse:
                             GPIO.output(pin, GPIO.LOW)
                         else:
@@ -87,12 +102,28 @@ class GPIOControl:
                             GPIO.output(pin, GPIO.HIGH)
                         else:
                             GPIO.output(pin, GPIO.LOW)
-    
+        # See if we have any additional relays
+        if self.__ch_map_on != None:
+            if len(set(self.__ch_map_on).intersection(self.__ch_on)) > 0:
+                # At least one channel requires the relays to be on
+                for relay in self.__ch_map_on[1]:
+                    if self.__inverse:
+                        GPIO.output(pin, GPIO.LOW)
+                    else:
+                        GPIO.output(pin, GPIO.HIGH)
+            else:
+                # Turn the relays off
+                for relay in self.__ch_map_on[1]:
+                    if self.__inverse:
+                        GPIO.output(pin, GPIO.HIGH)
+                    else:
+                        GPIO.output(pin, GPIO.LOW)
+                    
     #==============================================================================================
     # PRIVATE
     #==============================================================================================
     
     #-------------------------------------------------
-    # Return a GPIO pin for a relay number
-    def __pin_for_relay(self, pin_map, relay):
-        return pin_map[relay]
+    # Return a GPIO pin for a channel number in the given set
+    def __pin_for_ch(self, a_map, channel):
+        return a_map[channel]

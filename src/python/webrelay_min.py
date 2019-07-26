@@ -46,10 +46,10 @@ class WebRelayMin(object):
         return "%s - Minimal Web Application" % (self.__name)
 
     @cherrypy.expose
-    def set_relay(self, relay='1', state='off'):
-        print("Setting relay %s to state %s." % (relay, state))
+    def set_channel(self, relay='1', state='off'):
+        print("Setting chsnnel %s to state %s." % (relay, state))
         GPIO.set_relay(int(relay), state)
-        return 'Relays set!'
+        return 'Channel set!'
 
 #==============================================================================================
 # Main code
@@ -72,10 +72,16 @@ if __name__ == '__main__':
             name = app_conf["name"]    
             num_relays = app_conf["num_relays"]
             pin_map = app_conf["pin_map"]
+            ch_map_on = None
+            if "ch_map_on" in app_conf):
+                ch_map_on = app_conf["ch_map_on"]
+            ch_map_off = None
+            if "ch_map_off" in app_conf):
+                ch_map_on = app_conf["ch_map_off"]
             inverse = app_conf["inverse"]
             
             # Create web relay instance
-            GPIO = webrelay_gpio.GPIOControl(num_relays, pin_map, inverse)
+            GPIO = webrelay_gpio.GPIOControl(num_relays, pin_map, ch_map_on, ch_map_off, inverse)
             
             # Get configuration file
             cherrypy_conf = os.path.join(os.path.dirname(__file__), 'cherrypy_min.conf')

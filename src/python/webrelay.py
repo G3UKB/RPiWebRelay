@@ -59,9 +59,9 @@ class WebRelay:
 @cherrypy.expose
 class WebRelayWebService(object):
     
-    def __init__(self, num_relays, pin_map, inverse):
+    def __init__(self, num_relays, pin_map, ch_map_on, ch_map_off, inverse):
         # Create web relay instance
-        self.GPIO = webrelay_gpio.GPIOControl(num_relays, pin_map, inverse)
+        self.GPIO = webrelay_gpio.GPIOControl(num_relays, pin_map, ch_map_on, ch_map_off, inverse)
         
     @cherrypy.tools.accept(media='text/plain')
     #-------------------------------------------------
@@ -87,7 +87,7 @@ class WebRelayWebService_1(WebRelayWebService):
     # Called by a PUT request
     def PUT(self, rly_1_name, rly_1):
         for relay in [[0,rly_1]]:
-            self.GPIO.set_relay(relay[0], relay[1])
+            self.GPIO.set_channel(relay[0], relay[1])
         for name in [[1,rly_1_name]]:
             model.update_model(name[0], name[1])
         model.save_model()
@@ -99,7 +99,7 @@ class WebRelayWebService_2(WebRelayWebService):
     # Called by a PUT request
     def PUT(self, rly_1_name, rly_2_name, rly_1, rly_2):
         for relay in [[0,rly_1],[1,rly_2]]:
-            self.GPIO.set_relay(relay[0], relay[1])
+            self.GPIO.set_channel(relay[0], relay[1])
         for name in [[1,rly_1_name],[2,rly_2_name]]:
             model.update_model(name[0], name[1])
         model.save_model()
@@ -111,7 +111,7 @@ class WebRelayWebService_3(WebRelayWebService):
     # Called by a PUT request
     def PUT(self, rly_1_name, rly_2_name, rly_3_name, rly_1, rly_2, rly_3):
         for relay in [[0,rly_1],[1,rly_2],[2,rly_3]]:
-            self.GPIO.set_relay(relay[0], relay[1])
+            self.GPIO.set_channel(relay[0], relay[1])
         for name in [[1,rly_1_name],[2,rly_2_name],[3,rly_3_name]]:
             model.update_model(name[0], name[1])
         model.save_model()
@@ -123,7 +123,7 @@ class WebRelayWebService_4(WebRelayWebService):
     # Called by a PUT request
     def PUT(self, rly_1_name, rly_2_name, rly_3_name, rly_4_name, rly_1, rly_2, rly_3, rly_4):
         for relay in [[0,rly_1],[1,rly_2],[2,rly_3],[3,rly_4]]:
-            self.GPIO.set_relay(relay[0], relay[1])
+            self.GPIO.set_channel(relay[0], relay[1])
         for name in [[1,rly_1_name],[2,rly_2_name],[3,rly_3_name],[4,rly_4_name]]:
             model.update_model(name[0], name[1])
         model.save_model()
@@ -135,7 +135,7 @@ class WebRelayWebService_5(WebRelayWebService):
     # Called by a PUT request
     def PUT(self, rly_1_name, rly_2_name, rly_3_name, rly_4_name, rly_5_name, rly_1, rly_2, rly_3, rly_4, rly_5):
         for relay in [[0,rly_1],[1,rly_2],[2,rly_3],[3,rly_4],[4,rly_5],[5,rly_6],[6,rly_7],[7,rly_8]]:
-            self.GPIO.set_relay(relay[0], relay[1])
+            self.GPIO.set_channel(relay[0], relay[1])
         for name in [[1,rly_1_name],[2,rly_2_name],[3,rly_3_name],[4,rly_4_name],[5,rly_5_name]]:
             model.update_model(name[0], name[1])
         model.save_model()
@@ -147,7 +147,7 @@ class WebRelayWebService_6(WebRelayWebService):
     # Called by a PUT request
     def PUT(self, rly_1_name, rly_2_name, rly_3_name, rly_4_name, rly_5_name, rly_6_name, rly_1, rly_2, rly_3, rly_4, rly_5, rly_6):
         for relay in [[0,rly_1],[1,rly_2],[2,rly_3],[3,rly_4],[4,rly_5],[5,rly_6]]:
-            self.GPIO.set_relay(relay[0], relay[1])
+            self.GPIO.set_channel(relay[0], relay[1])
         for name in [[1,rly_1_name],[2,rly_2_name],[3,rly_3_name],[4,rly_4_name],[5,rly_5_name],[6,rly_6_name]]:
             model.update_model(name[0], name[1])
         model.save_model()
@@ -159,7 +159,7 @@ class WebRelayWebService_7(WebRelayWebService):
     # Called by a PUT request
     def PUT(self, rly_1_name, rly_2_name, rly_3_name, rly_4_name, rly_5_name, rly_6_name, rly_7_name, rly_1, rly_2, rly_3, rly_4, rly_5, rly_6, rly_7):
         for relay in [[0,rly_1],[1,rly_2],[2,rly_3],[3,rly_4],[4,rly_5],[5,rly_6],[6,rly_7],[7,rly_8]]:
-            self.GPIO.set_relay(relay[0], relay[1])
+            self.GPIO.set_channel(relay[0], relay[1])
         for name in [[1,rly_1_name],[2,rly_2_name],[3,rly_3_name],[4,rly_4_name],[5,rly_5_name],[6,rly_6_name],[7,rly_7_name]]:
             model.update_model(name[0], name[1])
         model.save_model()
@@ -171,7 +171,7 @@ class WebRelayWebService_8(WebRelayWebService):
     # Called by a PUT request
     def PUT(self, rly_1_name, rly_2_name, rly_3_name, rly_4_name, rly_5_name, rly_6_name, rly_7_name, rly_8_name, rly_1, rly_2, rly_3, rly_4, rly_5, rly_6, rly_7, rly_8):
         for relay in [[0,rly_1],[1,rly_2],[2,rly_3],[3,rly_4],[4,rly_5],[5,rly_6],[6,rly_7],[7,rly_8]]:
-            self.GPIO.set_relay(relay[0], relay[1])
+            self.GPIO.set_channel(relay[0], relay[1])
         for name in [[1,rly_1_name],[2,rly_2_name],[3,rly_3_name],[4,rly_4_name],[5,rly_5_name],[6,rly_6_name],[7,rly_7_name],[8,rly_8_name]]:
             model.update_model(name[0], name[1])
         model.save_model()
@@ -183,7 +183,7 @@ class WebRelayWebService_9(WebRelayWebService):
     # Called by a PUT request
     def PUT(self, rly_1_name, rly_2_name, rly_3_name, rly_4_name, rly_5_name, rly_6_name, rly_7_name, rly_8_name, rly_9_name, rly_1, rly_2, rly_3, rly_4, rly_5, rly_6, rly_7, rly_8):
         for relay in [[0,rly_1],[1,rly_2],[2,rly_3],[3,rly_4],[4,rly_5],[5,rly_6],[6,rly_7],[7,rly_8],[8,rly_9],[9,rly_10],[10,rly_11],[11,rly_12]]:
-            self.GPIO.set_relay(relay[0], relay[1])
+            self.GPIO.set_channel(relay[0], relay[1])
         for name in [[1,rly_1_name],[2,rly_2_name],[3,rly_3_name],[4,rly_4_name],[5,rly_5_name],[6,rly_6_name],[7,rly_7_name],[8,rly_8_name],[9,rly_9_name]]:
             model.update_model(name[0], name[1])
         model.save_model()
@@ -195,7 +195,7 @@ class WebRelayWebService_10(WebRelayWebService):
     # Called by a PUT request
     def PUT(self, rly_1_name, rly_2_name, rly_3_name, rly_4_name, rly_5_name, rly_6_name, rly_7_name, rly_8_name, rly_9_name, rly_10_name, rly_1, rly_2, rly_3, rly_4, rly_5, rly_6, rly_7, rly_8, rly_9, rly_10):
         for relay in [[0,rly_1],[1,rly_2],[2,rly_3],[3,rly_4],[4,rly_5],[5,rly_6],[6,rly_7],[7,rly_8],[8,rly_9],[9,rly_10]]:
-            self.GPIO.set_relay(relay[0], relay[1])
+            self.GPIO.set_channel(relay[0], relay[1])
         for name in [[1,rly_1_name],[2,rly_2_name],[3,rly_3_name],[4,rly_4_name],[5,rly_5_name],[6,rly_6_name],[7,rly_7_name],[8,rly_8_name],[9,rly_9_name],[10,rly_10_name]]:
             model.update_model(name[0], name[1])
         model.save_model()
@@ -207,7 +207,7 @@ class WebRelayWebService_11(WebRelayWebService):
     # Called by a PUT request
     def PUT(self, rly_1_name, rly_2_name, rly_3_name, rly_4_name, rly_5_name, rly_6_name, rly_7_name, rly_8_name, rly_9_name, rly_10_name, rly_11_name, rly_1, rly_2, rly_3, rly_4, rly_5, rly_6, rly_7, rly_8, rly_9, rly_10, rly_11):
         for relay in [[0,rly_1],[1,rly_2],[2,rly_3],[3,rly_4],[4,rly_5],[5,rly_6],[6,rly_7],[7,rly_8],[8,rly_9],[9,rly_10],[10,rly_11]]:
-            self.GPIO.set_relay(relay[0], relay[1])
+            self.GPIO.set_channel(relay[0], relay[1])
         for name in [[1,rly_1_name],[2,rly_2_name],[3,rly_3_name],[4,rly_4_name],[5,rly_5_name],[6,rly_6_name],[7,rly_7_name],[8,rly_8_name],[9,rly_9_name],[10,rly_10_name],[11,rly_11_name]]:
             model.update_model(name[0], name[1])
         model.save_model()
@@ -219,7 +219,7 @@ class WebRelayWebService_12(WebRelayWebService):
     # Called by a PUT request
     def PUT(self, rly_1_name, rly_2_name, rly_3_name, rly_4_name, rly_5_name, rly_6_name, rly_7_name, rly_8_name, rly_9_name, rly_10_name, rly_11_name, rly_12_name, rly_1, rly_2, rly_3, rly_4, rly_5, rly_6, rly_7, rly_8, rly_9, rly_10, rly_11, rly_12):
         for relay in [[0,rly_1],[1,rly_2],[2,rly_3],[3,rly_4],[4,rly_5],[5,rly_6],[6,rly_7],[7,rly_8],[8,rly_9],[9,rly_10],[10,rly_11],[11,rly_12]]:
-            self.GPIO.set_relay(relay[0], relay[1])
+            self.GPIO.set_channel(relay[0], relay[1])
         for name in [[1,rly_1_name],[2,rly_2_name],[3,rly_3_name],[4,rly_4_name],[5,rly_5_name],[6,rly_6_name],[7,rly_7_name],[8,rly_8_name],[9,rly_9_name],[10,rly_10_name],[11,rly_11_name],[12,rly_12_name]]:
             model.update_model(name[0], name[1])
         model.save_model()
@@ -249,6 +249,13 @@ if __name__ == '__main__':
             name = app_conf["name"]    
             num_relays = app_conf["num_relays"]
             pin_map = app_conf["pin_map"]
+            ch_map_on = None
+            if "ch_map_on" in app_conf):
+                ch_map_on = app_conf["ch_map_on"]
+            ch_map_off = None
+            if "ch_map_off" in app_conf):
+                ch_map_on = app_conf["ch_map_off"]
+                
             inverse = app_conf["inverse"]
             
             # Create and restore the model
@@ -262,34 +269,8 @@ if __name__ == '__main__':
             webService = [WebRelayWebService_1, WebRelayWebService_2, WebRelayWebService_3, WebRelayWebService_4,
                           WebRelayWebService_5,WebRelayWebService_6,WebRelayWebService_7,WebRelayWebService_8,
                           WebRelayWebService_9,WebRelayWebService_10,WebRelayWebService_11,WebRelayWebService_12]
-            webapp.webrelay_service = webService[num_relays-1](num_relays, pin_map, inverse)
-            
-            '''
-            if num_relays == 1:
-                webapp.webrelay_service = WebRelayWebService_1(num_relays, pin_map, inverse)
-            elif num_relays == 2:
-                webapp.webrelay_service = WebRelayWebService_2(num_relays, pin_map, inverse)
-            elif num_relays == 3:
-                webapp.webrelay_service = WebRelayWebService_3(num_relays, pin_map, inverse)
-            elif num_relays == 4:
-                webapp.webrelay_service = WebRelayWebService_4(num_relays, pin_map, inverse)
-            elif num_relays == 5:
-                webapp.webrelay_service = WebRelayWebService_5(num_relays, pin_map, inverse)
-            elif num_relays == 6:
-                webapp.webrelay_service = WebRelayWebService_6(num_relays, pin_map, inverse)
-            elif num_relays == 7:
-                webapp.webrelay_service = WebRelayWebService_7(num_relays, pin_map, inverse)
-            elif num_relays == 8:
-                webapp.webrelay_service = WebRelayWebService_8(num_relays, pin_map, inverse)
-            elif num_relays == 9:
-                webapp.webrelay_service = WebRelayWebService_9(num_relays, pin_map, inverse)
-            elif num_relays == 1:
-                webapp.webrelay_service = WebRelayWebService_10(num_relays, pin_map, inverse)
-            elif num_relays == 11:
-                webapp.webrelay_service = WebRelayWebService_11(num_relays, pin_map, inverse)
-            elif num_relays == 12:
-                webapp.webrelay_service = WebRelayWebService_12(num_relays, pin_map, inverse)
-            '''
+            webapp.webrelay_service = webService[num_relays-1](num_relays, pin_map, ch_map_on, ch_map_off, inverse)
+        
             # Start
             cherrypy.quickstart(webapp, config=cherrypy_conf)
         else:
