@@ -54,12 +54,13 @@ class GPIOControl:
             for relay in range(0,num_relays):
                 # We can have a number of relay sets to activate for one channel
                 for pin_set in pin_map:
-                    pin = self.__pin_for_relay(pin_map, relay)
-                    GPIO.setup(pin, GPIO.OUT)
-                    if inverse:
-                        GPIO.output(pin, GPIO.HIGH)
-                    else:
-                        GPIO.output(pin, GPIO.LOW)
+                    pin = self.__pin_for_relay(pin_set, relay)
+                    if pin != None:
+                        GPIO.setup(pin, GPIO.OUT)
+                        if inverse:
+                            GPIO.output(pin, GPIO.HIGH)
+                        else:
+                            GPIO.output(pin, GPIO.LOW)
 
     
     #==============================================================================================
@@ -72,19 +73,20 @@ class GPIOControl:
         
         for pin_set in self.__pin_map:
             pin = self.__pin_for_relay(pin_set, relay)
-            if testing:
-                print("Setting pin %d to state %s" % (pin, state))
-            else:
-                if state == 'on':
-                    if self.__inverse:
-                        GPIO.output(pin, GPIO.LOW)
-                    else:
-                        GPIO.output(pin, GPIO.HIGH)
+            if pin != None:
+                if testing:
+                    print("Setting pin %d to state %s" % (pin, state))
                 else:
-                    if self.__inverse:
-                        GPIO.output(pin, GPIO.HIGH)
+                    if state == 'on':
+                        if self.__inverse:
+                            GPIO.output(pin, GPIO.LOW)
+                        else:
+                            GPIO.output(pin, GPIO.HIGH)
                     else:
-                        GPIO.output(pin, GPIO.LOW)
+                        if self.__inverse:
+                            GPIO.output(pin, GPIO.HIGH)
+                        else:
+                            GPIO.output(pin, GPIO.LOW)
     
     #==============================================================================================
     # PRIVATE
