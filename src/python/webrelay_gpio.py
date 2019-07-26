@@ -61,11 +61,19 @@ class GPIOControl:
                     self.__set_pin(pin_set, channel, inverse)
             # See if we have any additional relays
             if self.__ch_map_on != None:
-                for channel in self.__ch_map_on[1]:
-                    self.__set_pin(self.__ch_map_on[1], channel, inverse)
+                for pin in self.__ch_map_on[1]:
+                    GPIO.setup(pin, GPIO.OUT)
+                    if inverse:
+                        GPIO.output(pin, GPIO.HIGH)
+                    else:
+                        GPIO.output(pin, GPIO.LOW)
             if self.__ch_map_off != None:
-                for channel in self.__ch_map_off[1]:
-                    self.__set_pin(self.__ch_map_off[1], channel, inverse)
+                for pin in self.__ch_map_off[1]:
+                    GPIO.setup(pin, GPIO.OUT)
+                    if inverse:
+                        GPIO.output(pin, GPIO.HIGH)
+                    else:
+                        GPIO.output(pin, GPIO.LOW)
                             
     #-------------------------------------------------
     # Set the pin mode
