@@ -1,0 +1,145 @@
+(* 
+	webrelay.8th
+ 
+  Simple RPi web relay manager.
+ 
+ Copyright C 2019 by G3UKB Bob Cowdery
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ at your option any later version.
+ 
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+ 
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ 
+  The author can be reached by email at:   
+     bob@bobcowdery.plus.com
+*)
+
+\ needs debug/nicer	
+\ needs debug/trace-crash
+\ needs debug/trace
+\ ( "EXCEPT: " . . cr bye ) w:is handler
+
+\ Define our namespace
+ns: webrelay
+
+\ ====================================================================================
+\ Vars
+false var, testing
+
+\ ====================================================================================
+\ Configuration
+: lpf_pinmap	\ --
+	{
+		"name" : "LPF",
+		"numchannels" : 6,
+		"mainmap" : [[27,22,5,6,13,26],[18,23,24,25,12,16]],
+		"mapon" : [[4,5,6],[4,17]],
+		"inverse" : True
+	}
+;
+
+: ports_pinmap	\ --
+	{
+		"name" : "Ports",
+		"numchannels" : 4,
+		"mainmap" : [4,17,27,22],
+		"inverse" : False
+	}
+;
+
+: power_pinmap	\ --
+	{
+		"name" : "Power",
+		"numchannels" : 8,
+		"mainmap" : [2,3,4,17,27,22,10,9],
+		"inverse" : True
+	}
+;
+
+: get_pinmap \ name -- pinmap
+	{"lpf" : `lpf_pinmap`, "ports" : `ports_pinmap`, "power" : `power_pinmap`}
+	swap caseof
+;
+	
+\ ====================================================================================
+\ GPIO interface
+\ This runs as a separate task
+
+\ ========================================
+\ Dummy
+: dummy_writer	\ --
+	
+;
+
+\ ========================================
+: init_pin	\ pin --
+	hw:arm? if
+		\ If running on ARM hardware create a gpio instance
+		\ and store in the gpiomap at key = pin
+		"gpiomap" t:@ swap false hw:gpio m:!
+	else
+		\ Store a dummy word we use for testing
+		"gpiomap" t:@ swap ' dummy_writer m:!
+	then
+	drop
+;
+
+\ ========================================
+: init_pins	\ pin-array --
+	' init_pin a:each! drop
+;
+
+\ ========================================
+\ Pin initialisation
+: init_all 	\ --
+	\ Retrieve main pinmap and process each pin array
+	"pinmap" t:@ "mainmap" m:@ nip ' init_pins a:each! drop
+	\ Retrieve ancilliary pinmaps and process the second array which is the pins
+	"pinmap" t:@ "mapon" m:exists? if "mapon" m:@ nip 1 a:@ nip ' init_pin a:each! then drop
+	"pinmap" t:@ "mapoff" m:exists? if "mapoff" m:@ nip 1 a:@ nip ' init_pin a:each! then drop
+;
+
+\========================================
+\ Message process
+: msg_pump	\ --
+	\ Process requests until quit message
+	repeat
+		-1 t:q-wait
+		pop "quit" s:= break
+	again
+;
+
+\ ========================================
+\ The task entry point
+: GPIO_interface	\ module-type --
+	\ Set task name and prevent throwing on q empty
+	"GPIO-Interface" t:name!
+	getq false q:throwing drop
+	cr "GPIO_interface task waiting for requests..." . cr
+	\ Retrieve our configuration, save to task var
+	get_pinmap "pinmap" t:!
+	\ Create a map to hold the gpio instances, save to task var
+	m:new "gpiomap" t:!
+	\ Initialise interface
+	init_all
+	\ Process requests
+	msg_pump
+	cr "GPIO_interface task exiting..." .
+;
+
+
+\ ====================================================================================
+\ Testing
+"lpf" 1 ' GPIO_interface t:task-n
+2 sleep
+dup "quit" t:push t:q-notify
+1 sleep
+bye
