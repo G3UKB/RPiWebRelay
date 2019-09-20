@@ -201,7 +201,8 @@ ns: webrelay
 
 \ ========================================
 \ Write value to GPIO/Sim according to spec
-: write_pin	\ pin energise
+: write_pin	\ energise pin 
+	swap
 	if
 		\ State 'on'
 		pinmap_inverse if false writer else true writer then
@@ -219,8 +220,8 @@ ns: webrelay
 		
 		
 		\ Retrieve ancilliary pinmaps and process the pin array
-		pinmap_onmap_pins null? not if ' write_pin a:each! then drop
-		pinmap_offmap_pins null? not if ' write_pin a:each! then drop
+		\ pinmap_onmap_pins null? not if ' write_pin a:each! then drop
+		\ pinmap_offmap_pins null? not if ' write_pin a:each! then drop
 ;
 
 \ ====================================================================================
@@ -231,10 +232,10 @@ ns: webrelay
 	hw:arm? if
 		\ If running on ARM hardware create a gpio instance
 		\ and store in the gpiomap at key = pin
-		"gpiomap" t:@ swap false hw:gpio m:! drop false write_pin
+		"gpiomap" t:@ swap false hw:gpio m:! drop false swap write_pin
 	else
 		\ Simulation
-		"gpiomap" t:@ 1 pick null m:! drop false write_pin
+		"gpiomap" t:@ 1 pick null m:! drop false swap write_pin
 	then
 ;
 
@@ -346,13 +347,15 @@ webrelay_test @ #if
 	gpiomap . cr
 	"1" gpiomap_inst . cr
 	"2" gpiomap_inst . cr
-
+	1 sleep
+	
 	\ ========================================
 	\ Test writers
 	"Test writers" . cr
-	1 true basic_write cr
-	1 false basic_write cr
-
+	4 true write_all cr
+	\ 1 false write_all cr
+	1 sleep
+	
 	\ ========================================
 	\ Test simulation
 	"Test simulation" . cr
