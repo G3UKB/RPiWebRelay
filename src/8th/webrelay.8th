@@ -32,17 +32,24 @@ ns: webrelay
 
 \ ====================================================================================
 \ Vars
-false var, testing
 
 \ ====================================================================================
 \ Configuration
+\ 	- mainmap can have n arrays. We take the channel index pin from each array to energise or de-energise.
+\		- mapon (if present) array index 0 is the channels for which we should ALWAYS energise array index 1 pins.
+\		- mapoff (if present) array index 0 is the channels for which we should ALWAYS de-energise array index 1 pins.
+\		- inverse if true invert the logic i.e. a logic 1 turns the device attached to the channel off.
+\		- exclusive if true when energising turn all other channels to the off state before energising the given channel.
+
+\ Called from any task. Only store config locally!
 : lpf_pinmap	\ --
 	{
 		"name" : "LPF",
 		"numchannels" : 6,
 		"mainmap" : [[27,22,5,6,13,26],[18,23,24,25,12,16]],
 		"mapon" : [[4,5,6],[4,17]],
-		"inverse" : True
+		"inverse" : true,
+		"exclusive" : true
 	}
 ;
 
@@ -51,7 +58,8 @@ false var, testing
 		"name" : "Ports",
 		"numchannels" : 4,
 		"mainmap" : [4,17,27,22],
-		"inverse" : False
+		"inverse" : false,
+		"exclusive" : true
 	}
 ;
 
@@ -60,25 +68,144 @@ false var, testing
 		"name" : "Power",
 		"numchannels" : 8,
 		"mainmap" : [2,3,4,17,27,22,10,9],
-		"inverse" : True
+		"inverse" : true,
+		"exclusive" : true
 	}
 ;
 
+\ ========================================
+\ Get pinmap map for given name
 : get_pinmap \ name -- pinmap
-	{"lpf" : `lpf_pinmap`, "ports" : `ports_pinmap`, "power" : `power_pinmap`}
+	{ "lpf" : ' lpf_pinmap , "ports" : ' ports_pinmap , "power" : ' power_pinmap }
 	swap caseof
 ;
-	
+
+\ ===============================================================================
+\ The GPIO interface runs as a separate task
+\ The following words must only be called from the GPIO interface task!
+
 \ ====================================================================================
-\ GPIO interface
-\ This runs as a separate task
+\ Accessors for pinmap and gpiomap
 
 \ ========================================
-\ Dummy
-: dummy_writer	\ --
-	
+\ Pin map
+: pinmap	\ -- pinmap
+		"pinmap" t:@
 ;
 
+\ ========================================
+\ Pin map main map
+: pinmap_mainmap	\ -- pinmap
+		pinmap "mainmap" m:@ nip
+;
+
+\ ========================================
+\ Pin map 'on' map
+: pinmap_onmap	\ -- on-map
+		pinmap "mapon" m:exists? if "mapon" m:@ else null then nip
+;
+
+\ ========================================
+\ Pin map 'on' pins
+: pinmap_onmap_pins	\ -- on-map-pins | null
+		pinmap_onmap null? if null
+		else 1 a:@ nip then
+;
+
+\ ========================================
+\ Pin map 'on' channels
+: pinmap_onmap_ch	\ -- on-map-ch | null
+		pinmap_onmap null? if null
+		else 0 a:@ nip then
+;
+
+\ ========================================
+\ Pin map 'off' map
+: pinmap_offmap	\ -- off-map | null
+		pinmap "mapoff" m:exists? if "mapoff" m:@ else null then nip
+;
+
+\ ========================================
+\ Pin map 'off' pins
+: pinmap_offmap_pins	\ -- off-map-pins | null
+		pinmap_offmap null? if drop null
+		else 1 a:@ nip then
+;
+
+\ ========================================
+\ Pin map 'off' channels
+: pinmap_offmap_ch	\ -- off-map-ch | null
+		pinmap_offmap null? if null
+		else 0 a:@ nip then
+;
+
+\ ========================================
+\ Pin map inverse
+: pinmap_inverse	\ -- pinmap-inverse
+		pinmap "inverse" m:@ nip
+;
+
+\ ========================================
+\ Pin map exclusive
+: pinmap_exclusive	\ -- pinmap-exclusive
+		pinmap "exclusive" m:@ nip
+;
+
+\ ========================================
+\ GPIO map
+: gpiomap	\ -- gpiomap
+		"gpiomap" t:@
+;
+
+\ ========================================
+\ GPIO inst
+: gpiomap_inst	\ channel -- gpiomap-inst
+		gpiomap swap m:@ nip 
+;
+
+\ ====================================================================================
+\ Writers
+
+\ ========================================
+\ Low level write
+: writer	\ channel state --
+	hw:arm? if
+		\ Real hardware
+		swap gpiomap_inst swap hw:gpio!
+	else
+		\ Simulation
+		"Channel:" . swap . " set to " . .
+;
+
+\ ========================================
+\ Write value to GPIO/Sim according to spec
+: do_write	\ channel energise
+	if
+		\ State 'on'
+		pinmap_inverse if
+			false writer
+		else
+			true writer
+		then
+	else
+		\ State 'off'
+		pinmap_inverse if
+			true writer
+		else
+			false writer
+		then
+	then
+;
+
+\ ========================================
+\ Basic wrire
+: basic_write	\ channel energise --
+	do_write
+;
+
+\ ====================================================================================
+\ Initialisation
+\ ToDo: Must actually reset ch as well
 \ ========================================
 : init_pin	\ pin --
 	hw:arm? if
@@ -101,10 +228,31 @@ false var, testing
 \ Pin initialisation
 : init_all 	\ --
 	\ Retrieve main pinmap and process each pin array
-	"pinmap" t:@ "mainmap" m:@ nip ' init_pins a:each! drop
-	\ Retrieve ancilliary pinmaps and process the second array which is the pins
-	"pinmap" t:@ "mapon" m:exists? if "mapon" m:@ nip 1 a:@ nip ' init_pin a:each! then drop
-	"pinmap" t:@ "mapoff" m:exists? if "mapoff" m:@ nip 1 a:@ nip ' init_pin a:each! then drop
+	pinmap_mainmap ' init_pins a:each! drop
+	\ Retrieve ancilliary pinmaps and process the pin array
+	pinmap_onmap_pins null? not if ' init_pin a:each! then drop
+	pinmap_offmap_pins null? not if ' init_pin a:each! then drop
+;
+
+\ ===============================================================================
+\ Execution words
+\ ToDo: Why does each execution word add 0 to the stack when not even called.
+\========================================
+\ Quit
+: do_quit \ args -- f
+	drop true
+;
+
+\========================================
+\ Energise pin
+: do_on	\ channel -- f
+
+;
+
+\========================================
+\ Deenergise pin
+: do_off	\ channel -- f
+
 ;
 
 \========================================
@@ -112,10 +260,21 @@ false var, testing
 : msg_pump	\ --
 	\ Process requests until quit message
 	repeat
+		\ Wait for work
 		-1 t:q-wait
-		pop "quit" s:= break
+		t:pop null? if
+			"Got null from Q!" log
+		else
+			a:open swap \ channel cmd
+			\ Execute the command
+			{ "quit" : ( do_quit ) , "on" : ( do_on ) , "off" : ( do_off ) }
+			swap caseof if break then	
+		then
 	again
 ;
+
+\ ===============================================================================
+\ The GPIO task word
 
 \ ========================================
 \ The task entry point
@@ -135,11 +294,42 @@ false var, testing
 	cr "GPIO_interface task exiting..." .
 ;
 
-
+\ ===============================================================================
 \ ====================================================================================
 \ Testing
+
+\ ========================================
+\ Test accessors
+\ Pin map
+"lpf" get_pinmap "pinmap" t:! drop
+pinmap . cr
+pinmap_mainmap . cr
+pinmap_onmap . cr
+pinmap_onmap_pins . cr
+pinmap_onmap_ch . cr
+pinmap_offmap . cr
+pinmap_offmap_pins . cr
+pinmap_offmap_ch . cr
+pinmap_inverse . cr
+pinmap_exclusive . cr
+
+\ GPIO map
+{"1" : "Inst-1", "2" : "Inst-2" } "gpiomap" t:! drop
+gpiomap . cr
+"1" gpiomap_inst . cr
+"2" gpiomap_inst . cr
+
+\ ========================================
+\ Test writers
+1 true basic_write cr
+1 false basic_write cr
+
+\ ========================================
+\ Test simulation
 "lpf" 1 ' GPIO_interface t:task-n
 2 sleep
-dup "quit" t:push t:q-notify
+dup ["quit", null] t:push t:q-notify
 1 sleep
+
 bye
+
