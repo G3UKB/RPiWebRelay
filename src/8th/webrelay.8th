@@ -96,6 +96,12 @@ ns: webrelay
 \ Accessors for pinmap and gpiomap
 
 \ ========================================
+\ Compare channels
+: ch_cmp \ n n -- f
+	n:= if true else false then
+;
+
+\ ========================================
 \ Pin map
 : pinmap	\ -- pinmap
 		"pinmap" t:@
@@ -140,6 +146,15 @@ ns: webrelay
 ;
 
 \ ========================================
+\ Channel in pin map 'on' channels
+: pinmap_onmap_ch_in	\ channel -- f | null
+		pinmap_onmap null? if 2drop null
+		else 
+			0 a:@ nip swap ' ch_cmp a:indexof nip null? if false else true then
+		then nip
+;
+
+\ ========================================
 \ Pin map 'off' map
 : pinmap_offmap	\ -- off-map | null
 		pinmap "mapoff" m:exists? if "mapoff" m:@ else null then nip
@@ -157,6 +172,15 @@ ns: webrelay
 : pinmap_offmap_ch	\ -- off-map-ch | null
 		pinmap_offmap null? if null
 		else 0 a:@ nip then
+;
+
+\ ========================================
+\ Channel in pin map 'off' channels
+: pinmap_offmap_ch_in	\ channel -- f | null
+		pinmap_offmap null? if null
+		else 
+			0 a:@ nip swap ' ch_cmp a:indexof null? if false else true then
+		then
 ;
 
 \ ========================================
@@ -201,8 +225,8 @@ ns: webrelay
 
 \ ========================================
 \ Write value to GPIO/Sim according to spec
-: write_pin	\ energise pin 
-	swap
+: write_pin	\ energise pin -- energise
+	1 pick
 	if
 		\ State 'on'
 		pinmap_inverse if false writer else true writer then
@@ -216,12 +240,17 @@ ns: webrelay
 \ Write all values for the given channel
 : write_all	\ channel energise --
 		\ Retrieve main pinmap and process each pin array
-		swap pinmap_mainmap_for_channel ' write_pin a:each! drop
-		
-		
-		\ Retrieve ancilliary pinmaps and process the pin array
-		\ pinmap_onmap_pins null? not if ' write_pin a:each! then drop
-		\ pinmap_offmap_pins null? not if ' write_pin a:each! then drop
+		swap >r r@ pinmap_mainmap_for_channel ' write_pin a:each! drop
+		\ See if we have any in the 'on' section
+		r@ pinmap_onmap_ch_in null? not if
+			\ Something to do
+			pinmap_onmap_pins ' write_pin a:each! drop
+		then
+		\ See if we have any in the 'off' section
+		pinmap_offmap_ch_in null? not if
+			\ Something to do
+			pinmap_onmap_pins ' write_pin a:each! drop
+		then
 ;
 
 \ ====================================================================================
@@ -335,6 +364,7 @@ webrelay_test @ #if
 	pinmap_onmap . cr
 	pinmap_onmap_pins . cr
 	pinmap_onmap_ch . cr
+	4 pinmap_onmap_ch_in . cr
 	pinmap_offmap . cr
 	pinmap_offmap_pins . cr
 	pinmap_offmap_ch . cr
@@ -352,8 +382,8 @@ webrelay_test @ #if
 	\ ========================================
 	\ Test writers
 	"Test writers" . cr
-	4 true write_all cr
-	\ 1 false write_all cr
+	6 true write_all cr
+	1 false write_all cr
 	1 sleep
 	
 	\ ========================================
