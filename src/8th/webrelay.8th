@@ -22,10 +22,18 @@
      bob@bobcowdery.plus.com
 *)
 
-\ needs debug/nicer	
-\ needs debug/trace-crash
-\ needs debug/trace
-\ ( "EXCEPT: " . . cr bye ) w:is handler
+\ ========================================
+\ Testing only
+true var, webrelay_test
+
+webrelay_test @ #if
+	\ needs debug/sed
+	\ true SED-CHECK
+	\ needs debug/nicer	
+	\ needs debug/trace-crash
+	\ needs debug/trace
+	\ ( "EXCEPT: " . . cr bye ) w:is handler
+#then
 
 \ Define our namespace
 ns: webrelay
@@ -57,7 +65,7 @@ ns: webrelay
 	{
 		"name" : "Ports",
 		"numchannels" : 4,
-		"mainmap" : [4,17,27,22],
+		"mainmap" : [[4,17,27,22]],
 		"inverse" : false,
 		"exclusive" : true
 	}
@@ -67,7 +75,7 @@ ns: webrelay
 	{
 		"name" : "Power",
 		"numchannels" : 8,
-		"mainmap" : [2,3,4,17,27,22,10,9],
+		"mainmap" : [[2,3,4,17,27,22,10,9]],
 		"inverse" : true,
 		"exclusive" : true
 	}
@@ -97,6 +105,18 @@ ns: webrelay
 \ Pin map main map
 : pinmap_mainmap	\ -- pinmap
 		pinmap "mainmap" m:@ nip
+;
+
+\ ========================================
+\ Pins for channel in main map
+: collect_channel	\ array channel pinmap -- array channel
+	swap >r r@ a:@			\ array pinmap value
+	rot swap a:push swap drop r>
+;
+
+: pinmap_mainmap_for_channel	\ channel -- pinmap_mainmap_for_channel
+	n:1- a:new swap pinmap_mainmap ' collect_channel a:each!
+	2drop
 ;
 
 \ ========================================
@@ -168,55 +188,54 @@ ns: webrelay
 
 \ ========================================
 \ Low level write
-: writer	\ channel state --
+: writer	\ pin state --
 	hw:arm? if
 		\ Real hardware
 		swap gpiomap_inst swap hw:gpio!
 	else
 		\ Simulation
-		"Channel:" . swap . " set to " . .
-;
-
-\ ========================================
-\ Write value to GPIO/Sim according to spec
-: do_write	\ channel energise
-	if
-		\ State 'on'
-		pinmap_inverse if
-			false writer
-		else
-			true writer
-		then
-	else
-		\ State 'off'
-		pinmap_inverse if
-			true writer
-		else
-			false writer
-		then
+		if 1 else 0 then
+		swap "Channel %d set to %d" s:strfmt log
 	then
 ;
 
 \ ========================================
-\ Basic wrire
-: basic_write	\ channel energise --
-	do_write
+\ Write value to GPIO/Sim according to spec
+: write_pin	\ pin energise
+	if
+		\ State 'on'
+		pinmap_inverse if false writer else true writer then
+	else
+		\ State 'off'
+		pinmap_inverse if true writer else false writer then
+	then
+;
+
+\ ========================================
+\ Write all values for the given channel
+: write_all	\ channel energise --
+		\ Retrieve main pinmap and process each pin array
+		swap pinmap_mainmap_for_channel ' write_pin a:each! drop
+		
+		
+		\ Retrieve ancilliary pinmaps and process the pin array
+		pinmap_onmap_pins null? not if ' write_pin a:each! then drop
+		pinmap_offmap_pins null? not if ' write_pin a:each! then drop
 ;
 
 \ ====================================================================================
 \ Initialisation
-\ ToDo: Must actually reset ch as well
+
 \ ========================================
 : init_pin	\ pin --
 	hw:arm? if
 		\ If running on ARM hardware create a gpio instance
 		\ and store in the gpiomap at key = pin
-		"gpiomap" t:@ swap false hw:gpio m:!
+		"gpiomap" t:@ swap false hw:gpio m:! drop false write_pin
 	else
-		\ Store a dummy word we use for testing
-		"gpiomap" t:@ swap ' dummy_writer m:!
+		\ Simulation
+		"gpiomap" t:@ 1 pick null m:! drop false write_pin
 	then
-	drop
 ;
 
 \ ========================================
@@ -239,20 +258,20 @@ ns: webrelay
 \ ToDo: Why does each execution word add 0 to the stack when not even called.
 \========================================
 \ Quit
-: do_quit \ args -- f
+: do_quit \ _ -- f
 	drop true
 ;
 
 \========================================
 \ Energise pin
 : do_on	\ channel -- f
-
+	true write_all
 ;
 
 \========================================
 \ Deenergise pin
 : do_off	\ channel -- f
-
+	false write_all
 ;
 
 \========================================
@@ -294,42 +313,54 @@ ns: webrelay
 	cr "GPIO_interface task exiting..." .
 ;
 
+\ ========================================
+\ Reset namespace
+ns: user
+
 \ ===============================================================================
 \ ====================================================================================
 \ Testing
 
-\ ========================================
-\ Test accessors
-\ Pin map
-"lpf" get_pinmap "pinmap" t:! drop
-pinmap . cr
-pinmap_mainmap . cr
-pinmap_onmap . cr
-pinmap_onmap_pins . cr
-pinmap_onmap_ch . cr
-pinmap_offmap . cr
-pinmap_offmap_pins . cr
-pinmap_offmap_ch . cr
-pinmap_inverse . cr
-pinmap_exclusive . cr
+webrelay_test @ #if
+	ns: webrelay
+	\ ========================================
+	\ Test accessors
+	\ Pin map
+	"Test accessors..." . cr
+	"lpf" get_pinmap "pinmap" t:! drop
+	pinmap . cr
+	pinmap_mainmap . cr
+	4 pinmap_mainmap_for_channel . cr
+	pinmap_onmap . cr
+	pinmap_onmap_pins . cr
+	pinmap_onmap_ch . cr
+	pinmap_offmap . cr
+	pinmap_offmap_pins . cr
+	pinmap_offmap_ch . cr
+	pinmap_inverse . cr
+	pinmap_exclusive . cr
 
-\ GPIO map
-{"1" : "Inst-1", "2" : "Inst-2" } "gpiomap" t:! drop
-gpiomap . cr
-"1" gpiomap_inst . cr
-"2" gpiomap_inst . cr
+	\ GPIO map
+	"Test GPIO map" . cr
+	{"1" : "Inst-1", "2" : "Inst-2" } "gpiomap" t:! drop
+	gpiomap . cr
+	"1" gpiomap_inst . cr
+	"2" gpiomap_inst . cr
 
-\ ========================================
-\ Test writers
-1 true basic_write cr
-1 false basic_write cr
+	\ ========================================
+	\ Test writers
+	"Test writers" . cr
+	1 true basic_write cr
+	1 false basic_write cr
 
-\ ========================================
-\ Test simulation
-"lpf" 1 ' GPIO_interface t:task-n
-2 sleep
-dup ["quit", null] t:push t:q-notify
-1 sleep
+	\ ========================================
+	\ Test simulation
+	"Test simulation" . cr
+	"lpf" 1 ' GPIO_interface t:task-n
+	2 sleep
+	dup ["quit", null] t:push t:q-notify
+	1 sleep
 
-bye
+	bye
+#then
 
