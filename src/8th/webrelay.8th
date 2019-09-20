@@ -237,9 +237,18 @@ ns: webrelay
 ;
 
 \ ========================================
+: write_pins	\ pin-array --
+	false swap ' write_pin a:each! 2drop
+;
+
+\ ========================================
 \ Write all values for the given channel
 : write_all	\ channel energise --
 		\ Retrieve main pinmap and process each pin array
+		pinmap_exclusive if
+			\ Turn all relays off first
+			pinmap_mainmap ' write_pins a:each! drop
+		then
 		swap >r r@ pinmap_mainmap_for_channel ' write_pin a:each! drop
 		\ See if we have any in the 'on' section
 		r@ pinmap_onmap_ch_in null? not if
@@ -264,7 +273,7 @@ ns: webrelay
 		"gpiomap" t:@ swap false hw:gpio m:! drop false swap write_pin
 	else
 		\ Simulation
-		"gpiomap" t:@ 1 pick null m:! drop false swap write_pin
+		"gpiomap" t:@ 1 pick null m:! drop false swap write_pin drop
 	then
 ;
 
@@ -348,7 +357,7 @@ ns: webrelay
 ns: user
 
 \ ===============================================================================
-\ ====================================================================================
+\ ===============================================================================
 \ Testing
 
 webrelay_test @ #if
