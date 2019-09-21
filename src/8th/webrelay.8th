@@ -29,8 +29,8 @@ false var, webrelay_word_test
 true var, webrelay_func_test
 
 webrelay_test @ #if
-	\ needs debug/sed
-	\ true SED-CHECK
+	needs debug/sed
+	true SED-CHECK
 	\ needs debug/nicer	
 	\ needs debug/trace-crash
 	\ needs debug/trace
@@ -52,7 +52,9 @@ ns: webrelay
 \		- exclusive if true when energising turn all other channels to the off state before energising the given channel.
 
 \ Called from any task. Only store config locally!
-: lpf_pinmap	\ --
+\ SED: -- config 
+: lpf_pinmap	SED: -- m
+	 \ -- config 
 	{
 		"name" : "LPF",
 		"numchannels" : 6,
@@ -63,7 +65,8 @@ ns: webrelay
 	}
 ;
 
-: ports_pinmap	\ --
+\ SED: -- config 
+: ports_pinmap	SED: -- m	
 	{
 		"name" : "Ports",
 		"numchannels" : 4,
@@ -73,7 +76,8 @@ ns: webrelay
 	}
 ;
 
-: power_pinmap	\ --
+\ SED: -- config 
+: power_pinmap	SED: -- m
 	{
 		"name" : "Power",
 		"numchannels" : 8,
@@ -85,7 +89,8 @@ ns: webrelay
 
 \ ========================================
 \ Get pinmap map for given name
-: get_pinmap \ name -- pinmap
+\ SED:  name -- pinmap
+: get_pinmap SED: s -- m
 	{ "lpf" : ' lpf_pinmap , "ports" : ' ports_pinmap , "power" : ' power_pinmap }
 	swap caseof
 ;
@@ -99,25 +104,30 @@ ns: webrelay
 
 \ ========================================
 \ Compare channels
-: ch_cmp \ n n -- f
+\ SED:  ch ch -- true|false
+\ WRONG called with arrays not numbers
+: ch_cmp \ SED:  n n -- f
 	n:= if true else false then
 ;
 
 \ ========================================
 \ Pin map
-: pinmap	\ -- pinmap
+\ SED:  -- pinmap
+: pinmap	SED: -- m
 		"pinmap" t:@
 ;
 
 \ ========================================
 \ Pin map main map
-: pinmap_mainmap	\ -- pinmap
+\ SED:  -- pinmap.mainmap
+: pinmap_mainmap	SED: -- a
 		pinmap "mainmap" m:@ nip
 ;
 
 \ ========================================
 \ Pins for channel in main map
-: collect_channel	\ array channel pinmap -- array channel
+\ SED: array-to-populate channel pinmap.mainmap -- array-to-populate channel
+: collect_channel	SED: a n a -- a n
 	swap >r r@ a:@			\ array pinmap value
 	rot swap a:push swap drop r>
 ;
@@ -221,7 +231,7 @@ ns: webrelay
 	else
 		\ Simulation
 		if 1 else 0 then
-		swap "Channel %d set to %d" s:strfmt log
+		swap \ "Channel %d set to %d" s:strfmt log
 	then
 ;
 
@@ -405,6 +415,7 @@ webrelay_test @ #if
 		"Test simulation" . cr
 		"lpf" 1 ' GPIO_interface t:task-n
 		2 sleep
+		\ dup ["on", 5] t:push t:q-notify
 		dup ["quit", null] t:push t:q-notify
 		1 sleep
 	#then
