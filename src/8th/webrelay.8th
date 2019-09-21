@@ -25,6 +25,8 @@
 \ ========================================
 \ Testing only
 true var, webrelay_test
+false var, webrelay_word_test
+true var, webrelay_func_test
 
 webrelay_test @ #if
 	\ needs debug/sed
@@ -362,46 +364,50 @@ ns: user
 
 webrelay_test @ #if
 	ns: webrelay
-	\ ========================================
-	\ Test accessors
-	\ Pin map
-	"Test accessors..." . cr
-	"lpf" get_pinmap "pinmap" t:! drop
-	pinmap . cr
-	pinmap_mainmap . cr
-	4 pinmap_mainmap_for_channel . cr
-	pinmap_onmap . cr
-	pinmap_onmap_pins . cr
-	pinmap_onmap_ch . cr
-	4 pinmap_onmap_ch_in . cr
-	pinmap_offmap . cr
-	pinmap_offmap_pins . cr
-	pinmap_offmap_ch . cr
-	pinmap_inverse . cr
-	pinmap_exclusive . cr
+	webrelay_word_test @ #if
+		\ ========================================
+		\ Test accessors
+		\ Pin map
+		"Test accessors..." . cr
+		"lpf" get_pinmap "pinmap" t:! drop
+		pinmap . cr
+		pinmap_mainmap . cr
+		4 pinmap_mainmap_for_channel . cr
+		pinmap_onmap . cr
+		pinmap_onmap_pins . cr
+		pinmap_onmap_ch . cr
+		4 pinmap_onmap_ch_in . cr
+		pinmap_offmap . cr
+		pinmap_offmap_pins . cr
+		pinmap_offmap_ch . cr
+		pinmap_inverse . cr
+		pinmap_exclusive . cr
 
-	\ GPIO map
-	"Test GPIO map" . cr
-	{"1" : "Inst-1", "2" : "Inst-2" } "gpiomap" t:! drop
-	gpiomap . cr
-	"1" gpiomap_inst . cr
-	"2" gpiomap_inst . cr
-	1 sleep
-	
-	\ ========================================
-	\ Test writers
-	"Test writers" . cr
-	6 true write_all cr
-	1 false write_all cr
-	1 sleep
-	
-	\ ========================================
-	\ Test simulation
-	"Test simulation" . cr
-	"lpf" 1 ' GPIO_interface t:task-n
-	2 sleep
-	dup ["quit", null] t:push t:q-notify
-	1 sleep
+		\ GPIO map
+		"Test GPIO map" . cr
+		{"1" : "Inst-1", "2" : "Inst-2" } "gpiomap" t:! drop
+		gpiomap . cr
+		"1" gpiomap_inst . cr
+		"2" gpiomap_inst . cr
+		1 sleep
+
+		\ ========================================
+		\ Test writers
+		"Test writers" . cr
+		6 true write_all cr
+		1 false write_all cr
+		1 sleep
+	#then
+
+	webrelay_func_test @ #if
+		\ ========================================
+		\ Test simulation
+		"Test simulation" . cr
+		"lpf" 1 ' GPIO_interface t:task-n
+		2 sleep
+		dup ["quit", null] t:push t:q-notify
+		1 sleep
+	#then
 
 	bye
 #then
