@@ -25,8 +25,8 @@
 \ ========================================
 \ Testing only
 true var, webrelay_test
-false var, webrelay_word_test
-true var, webrelay_func_test
+true var, webrelay_word_test
+false var, webrelay_func_test
 
 webrelay_test @ #if
 	needs debug/sed
@@ -52,9 +52,8 @@ ns: webrelay
 \		- exclusive if true when energising turn all other channels to the off state before energising the given channel.
 
 \ Called from any task. Only store config locally!
-\ SED: -- config 
+\ -- config 
 : lpf_pinmap	SED: -- m
-	 \ -- config 
 	{
 		"name" : "LPF",
 		"numchannels" : 6,
@@ -65,7 +64,7 @@ ns: webrelay
 	}
 ;
 
-\ SED: -- config 
+\ -- config 
 : ports_pinmap	SED: -- m	
 	{
 		"name" : "Ports",
@@ -76,7 +75,7 @@ ns: webrelay
 	}
 ;
 
-\ SED: -- config 
+\ -- config 
 : power_pinmap	SED: -- m
 	{
 		"name" : "Power",
@@ -89,7 +88,7 @@ ns: webrelay
 
 \ ========================================
 \ Get pinmap map for given name
-\ SED:  name -- pinmap
+\ name -- pinmap
 : get_pinmap SED: s -- m
 	{ "lpf" : ' lpf_pinmap , "ports" : ' ports_pinmap , "power" : ' power_pinmap }
 	swap caseof
@@ -104,63 +103,67 @@ ns: webrelay
 
 \ ========================================
 \ Compare channels
-\ SED:  ch ch -- true|false
-\ WRONG called with arrays not numbers
-: ch_cmp \ SED:  n n -- f
+\ ch ch -- true|false
+: ch_cmp SED:  n n -- T
 	n:= if true else false then
 ;
 
 \ ========================================
 \ Pin map
-\ SED:  -- pinmap
+\ -- pinmap
 : pinmap	SED: -- m
 		"pinmap" t:@
 ;
 
 \ ========================================
 \ Pin map main map
-\ SED:  -- pinmap.mainmap
+\ -- pinmap.mainmap
 : pinmap_mainmap	SED: -- a
 		pinmap "mainmap" m:@ nip
 ;
 
 \ ========================================
 \ Pins for channel in main map
-\ SED: array-to-populate channel pinmap.mainmap -- array-to-populate channel
+\ array-to-populate channel pinmap.mainmap -- array-to-populate channel
 : collect_channel	SED: a n a -- a n
 	swap >r r@ a:@			\ array pinmap value
 	rot swap a:push swap drop r>
 ;
 
-: pinmap_mainmap_for_channel	\ channel -- pinmap_mainmap_for_channel
+\ channel -- pinmap_mainmap_for_channel
+: pinmap_mainmap_for_channel	SED: n -- a
 	n:1- a:new swap pinmap_mainmap ' collect_channel a:each!
 	2drop
 ;
 
 \ ========================================
 \ Pin map 'on' map
-: pinmap_onmap	\ -- on-map
+\ -- on-map
+: pinmap_onmap	SED: -- a
 		pinmap "mapon" m:exists? if "mapon" m:@ else null then nip
 ;
 
 \ ========================================
 \ Pin map 'on' pins
-: pinmap_onmap_pins	\ -- on-map-pins | null
+\ SED:  -- on-map-pins | null
+: pinmap_onmap_pins SED: -- *
 		pinmap_onmap null? if null
 		else 1 a:@ nip then
 ;
 
 \ ========================================
 \ Pin map 'on' channels
-: pinmap_onmap_ch	\ -- on-map-ch | null
+\ -- on-map-ch | null
+: pinmap_onmap_ch	SED: -- *
 		pinmap_onmap null? if null
 		else 0 a:@ nip then
 ;
 
 \ ========================================
 \ Channel in pin map 'on' channels
-: pinmap_onmap_ch_in	\ channel -- f | null
-		pinmap_onmap null? if 2drop null
+\ channel -- f | null
+: pinmap_onmap_ch_in	SED: n -- *
+		pinmap_onmap null? if drop null
 		else 
 			0 a:@ nip swap ' ch_cmp a:indexof nip null? if false else true then
 		then nip
@@ -168,28 +171,32 @@ ns: webrelay
 
 \ ========================================
 \ Pin map 'off' map
-: pinmap_offmap	\ -- off-map | null
+\ -- off-map | null
+: pinmap_offmap	SED: -- *
 		pinmap "mapoff" m:exists? if "mapoff" m:@ else null then nip
 ;
 
 \ ========================================
 \ Pin map 'off' pins
-: pinmap_offmap_pins	\ -- off-map-pins | null
+\ -- off-map-pins | null
+: pinmap_offmap_pins	SED: -- *
 		pinmap_offmap null? if drop null
 		else 1 a:@ nip then
 ;
 
 \ ========================================
 \ Pin map 'off' channels
-: pinmap_offmap_ch	\ -- off-map-ch | null
-		pinmap_offmap null? if null
+\ -- off-map-ch | null
+: pinmap_offmap_ch	 SED: -- *	
+		pinmap_offmap null? if drop null
 		else 0 a:@ nip then
 ;
 
 \ ========================================
 \ Channel in pin map 'off' channels
-: pinmap_offmap_ch_in	\ channel -- f | null
-		pinmap_offmap null? if null
+\ channel -- f | null
+: pinmap_offmap_ch_in	SED: -- *
+		pinmap_offmap null? if drop null
 		else 
 			0 a:@ nip swap ' ch_cmp a:indexof null? if false else true then
 		then
@@ -197,26 +204,30 @@ ns: webrelay
 
 \ ========================================
 \ Pin map inverse
-: pinmap_inverse	\ -- pinmap-inverse
+\ -- pinmap-inverse
+: pinmap_inverse	SED: -- T 
 		pinmap "inverse" m:@ nip
 ;
 
 \ ========================================
 \ Pin map exclusive
-: pinmap_exclusive	\ -- pinmap-exclusive
+\ -- pinmap-exclusive
+: pinmap_exclusive	SED: -- T 
 		pinmap "exclusive" m:@ nip
 ;
 
 \ ========================================
 \ GPIO map
-: gpiomap	\ -- gpiomap
+\ -- gpiomap
+: gpiomap	SED: -- m
 		"gpiomap" t:@
 ;
 
 \ ========================================
 \ GPIO inst
-: gpiomap_inst	\ channel -- gpiomap-inst
-		gpiomap swap m:@ nip 
+\ channel -- gpiomap-inst
+: gpiomap_inst	SED: s -- *
+		gpiomap swap m:@ nip
 ;
 
 \ ====================================================================================
@@ -390,6 +401,7 @@ webrelay_test @ #if
 		pinmap_offmap . cr
 		pinmap_offmap_pins . cr
 		pinmap_offmap_ch . cr
+		4 pinmap_offmap_ch_in . cr
 		pinmap_inverse . cr
 		pinmap_exclusive . cr
 
