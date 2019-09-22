@@ -242,7 +242,7 @@ ns: webrelay
 	else
 		\ Simulation
 		if 1 else 0 then
-		swap \ "Channel %d set to %d" s:strfmt log
+		swap "Channel %d set to %d" s:strfmt log
 	then
 ;
 
@@ -427,7 +427,7 @@ webrelay_test @ #if
 		"Test simulation" . cr
 		"lpf" 1 ' GPIO_interface t:task-n
 		2 sleep
-		\ dup ["on", 5] t:push t:q-notify
+		dup ["on", 5] t:push t:q-notify
 		dup ["quit", null] t:push t:q-notify
 		1 sleep
 	#then
