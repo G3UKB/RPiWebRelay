@@ -25,7 +25,7 @@
 \ ========================================
 \ Testing only
 true var, webrelay_test
-false var, webrelay_word_test
+true var, webrelay_word_test
 true var, webrelay_func_test
 
 webrelay_test @ #if
@@ -293,7 +293,8 @@ ns: webrelay
 \ Initialisation
 
 \ ========================================
-: init_pin	\ pin --
+\ pin --
+: init_pin	SED: n --
 	hw:arm? if
 		\ If running on ARM hardware create a gpio instance
 		\ and store in the gpiomap at key = pin
@@ -305,13 +306,15 @@ ns: webrelay
 ;
 
 \ ========================================
-: init_pins	\ pin-array --
+\ pin-array --
+: init_pins	SED: a --
 	' init_pin a:each! drop
 ;
 
 \ ========================================
 \ Pin initialisation
-: init_all 	\ --
+\ --
+: init_all SED: --	
 	\ Retrieve main pinmap and process each pin array
 	pinmap_mainmap ' init_pins a:each! drop
 	\ Retrieve ancilliary pinmaps and process the pin array
@@ -324,33 +327,37 @@ ns: webrelay
 \ ToDo: Why does each execution word add 0 to the stack when not even called.
 \========================================
 \ Quit
-\  params -- f
+\ params -- flag
 : do_quit	SED: * -- T
 	drop true
 ;
-
+\ .s
 \========================================
 \ Energise pin
-\ channel -- f
+\ channel -- flag
 : do_on	SED: n -- T
 	true write_all false
 ;
-
+\ .s
 \========================================
 \ Deenergise pin
-\ channel -- f
+\ channel -- flag
 : do_off	SED: n -- T
 	false write_all false
 ;
-
+\ .s
 \========================================
 \ Message process
-: msg_pump	\ --
+\ --
+: msg_pump	\ SED: --
 	\ Process requests until quit message
+	\ .s 
 	cr "GPIO_interface task waiting for requests..." . cr
 	repeat
 		\ Wait for work
-		0.1 t:q-wait \ -1 sleep 
+		\ 0.1 t:q-wait
+		\ -1 t:q-wait
+		-1 sleep 
 		t:pop null? if
 			drop \ "Got null from Q!" log
 		else
@@ -360,15 +367,18 @@ ns: webrelay
 			{ "quit" : ( do_quit ) , "on" : ( do_on ) , "off" : ( do_off ) }
 			swap caseof if break then	
 		then
-	again
+		\ 0.1 sleep
+	again 
+	\ .s
 ;
-
+\ .s
 \ ===============================================================================
 \ The GPIO task word
 
 \ ========================================
 \ The task entry point
-: GPIO_interface	\ module-type --
+\ module-type --
+: GPIO_interface	SED: s --
 	\ Set task name and prevent throwing on q empty
 	"GPIO-Interface" t:name!
 	getq false q:throwing drop
@@ -390,7 +400,6 @@ ns: user
 \ ===============================================================================
 \ ===============================================================================
 \ Testing
-
 webrelay_test @ #if
 	ns: webrelay
 	webrelay_word_test @ #if
@@ -436,7 +445,7 @@ webrelay_test @ #if
 		"lpf" 1 ' GPIO_interface t:task-n "test-task" t:!
 		1 sleep
 		"test-task" t:@ dup ["on", 5] const t:push t:notify
-		\ 1 sleep
+		1 sleep
 		"test-task" t:@ dup ["quit", null] const t:push t:notify
 		1 sleep
 	#then
