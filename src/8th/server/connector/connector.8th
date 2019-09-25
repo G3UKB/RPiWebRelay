@@ -36,7 +36,7 @@ conector_test @ #if
 #then
 
 \ Define our namespace
-ns: webif
+ns: wr_conn
 
 \ ====================================================================================
 \ Vars
