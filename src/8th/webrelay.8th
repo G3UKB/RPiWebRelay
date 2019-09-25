@@ -243,7 +243,7 @@ ns: webrelay
 	else
 		\ Simulation
 		if 1 else 0 then
-		swap 2drop \ "Channel %d set to %d" s:strfmt log
+		swap "Channel %d set to %d" s:strfmt log
 	then
 ;
 
@@ -325,53 +325,47 @@ ns: webrelay
 \ ===============================================================================
 \ Execution words
 \ ToDo: Why does each execution word add 0 to the stack when not even called.
-\========================================
+\ ========================================
 \ Quit
 \ params -- flag
 : do_quit	SED: * -- T
 	drop true
 ;
-\ .s
-\========================================
+
+\ ========================================
 \ Energise pin
 \ channel -- flag
 : do_on	SED: n -- T
 	true write_all false
 ;
-\ .s
-\========================================
+
+\ ========================================
 \ Deenergise pin
 \ channel -- flag
 : do_off	SED: n -- T
 	false write_all false
 ;
-\ .s
+
 \========================================
 \ Message process
 \ --
-: msg_pump	\ SED: --
-	\ Process requests until quit message
-	\ .s 
+: msg_pump SED: --
+	\ Process requests until quit message 
 	cr "GPIO_interface task waiting for requests..." . cr
 	repeat
 		\ Wait for work
-		\ 0.1 t:q-wait
-		\ -1 t:q-wait
-		-1 sleep 
+		-1 t:q-wait 
 		t:pop null? if
-			drop \ "Got null from Q!" log
+			"Got null from Q!" log
 		else
-			dup . cr
 			a:open swap \ channel cmd
 			\ Execute the command
-			{ "quit" : ( do_quit ) , "on" : ( do_on ) , "off" : ( do_off ) }
+			{ "quit" : ' do_quit  , "on" : ' do_on  , "off" : ' do_off }
 			swap caseof if break then	
 		then
-		\ 0.1 sleep
 	again 
-	\ .s
 ;
-\ .s
+
 \ ===============================================================================
 \ The GPIO task word
 
@@ -444,9 +438,9 @@ webrelay_test @ #if
 		"Test simulation" . cr
 		"lpf" 1 ' GPIO_interface t:task-n "test-task" t:!
 		1 sleep
-		"test-task" t:@ dup ["on", 5] const t:push t:notify
+		"test-task" t:@ dup ["on", 5] const t:push t:q-notify
 		1 sleep
-		"test-task" t:@ dup ["quit", null] const t:push t:notify
+		"test-task" t:@ dup ["quit", null] const t:push t:q-notify
 		1 sleep
 	#then
 
