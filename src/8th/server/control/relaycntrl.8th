@@ -189,7 +189,7 @@ ns: webrelay
 : writer	SED: n T --	
 	hw:arm? if
 		\ Real hardware
-		swap gpiomap_inst swap hw:gpio!
+		swap >s gpiomap_inst swap hw:gpio! drop
 	else
 		\ Simulation
 		if 1 else 0 then
@@ -248,7 +248,9 @@ ns: webrelay
 	hw:arm? if
 		\ If running on ARM hardware create a gpio instance
 		\ and store in the gpiomap at key = pin
-		"gpiomap" t:@ swap false hw:gpio m:! drop false swap write_pin
+		>r \ Stash away channel 
+		"gpiomap" t:@ r@ false hw:gpio r@ swap m:! drop \ Store instance
+		false r> write_pin drop	\ Initialise pin
 	else
 		\ Simulation
 		"gpiomap" t:@ 1 pick null m:! drop false swap write_pin drop
