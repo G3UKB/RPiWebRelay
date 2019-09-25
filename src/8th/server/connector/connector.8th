@@ -1,0 +1,99 @@
+(* 
+	connector.8th
+ 
+  Server UDP interface
+ 
+ Copyright C 2019 by G3UKB Bob Cowdery
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ at your option any later version.
+ 
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+ 
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ 
+  The author can be reached by email at:   
+     bob@bobcowdery.plus.com
+*)
+
+\ ========================================
+\ Testing only
+true var, conector_test
+
+conector_test @ #if
+	needs debug/sed
+	true SED-CHECK
+	\ needs debug/nicer	
+	\ needs debug/trace-crash
+	\ needs debug/trace
+	\ ( "EXCEPT: " . . cr bye ) w:is handler
+#then
+
+\ Define our namespace
+ns: webif
+
+\ ====================================================================================
+\ Vars
+
+\ ===============================================================================
+\ The connector interface runs as a separate task.
+\ All words in this file are private to the task.
+
+\ ===============================================================================
+\ ===============================================================================
+\ PRIVATE INTERFACE
+
+\ Initialisation
+\ Create UDP socket
+\ --
+: create_socket	SED: --
+	{ "domain" : ` net:INET4 ` , "type" : ` net:DGRAM ` , "proto" : ` net:PROTO_UDP ` } net:socket "udp_cmd_sock" t:! ;
+	
+\ Get command socket
+\ -- socket
+: cmd_sock@	SED: -- net
+	"udp_cmd_sock" t:@ ;
+	
+\ ===============================================================================
+\ ===============================================================================
+\ PUBLIC INTERFACE
+\ There is no public callable interface. Messaging only.
+\ To create this task do something like the following
+\ "lpf" 1 ' Connector t:task-n "connector-task" t:!
+\ To start the connector listening for requests.
+\ 	"connector-task" t:@ dup ["start", null] const t:push t:q-notify
+\ To reset the task i.e. close and restart.
+\ 	"gpio-task" t:@ dup ["reset", null] const t:push t:q-notify
+\ To terminate the task.
+\ 	"gpio-task" t:@ dup ["quit", null] const t:push t:q-notify
+
+\ ===============================================================================
+\ The Connector task word
+
+\ ========================================
+\ The message pump
+\  --
+: msg_pump	SED:  --
+	
+
+\ ========================================
+\ The task entry point
+\ RelayControlTask --
+: Connector	SED: t --
+	\ Set task name and prevent throwing on q empty
+	"Connector" t:name!
+	getq false q:throwing drop
+	\ Process requests
+	msg_pump
+	cr "Connector task exiting..." .
+;
+
+\ ========================================
+\ Reset namespace
+ns: user

@@ -36,7 +36,7 @@ relayconfig_test @ #if
 #then
 
 \ Define our namespace
-ns: webrelay
+ns: wr.conf
 
 \ ====================================================================================
 \ Vars
@@ -100,7 +100,7 @@ ns: user
 \ ===============================================================================
 \ Testing
 relayconfig_test @ #if
-	ns: webrelay
+	with: wr.conf
 	\ ========================================
 	\ Test accessors
 	\ Pin map
@@ -110,5 +110,6 @@ relayconfig_test @ #if
 	"ports" get_pinmap . cr
 	"Test POWER config ..." . cr
 	"power" get_pinmap . cr
+	;with
 	bye
 #then

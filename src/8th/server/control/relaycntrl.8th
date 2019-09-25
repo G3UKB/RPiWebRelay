@@ -39,14 +39,19 @@ relayctrl_test @ #if
 #then
 
 \ Define our namespace
-ns: webrelay
+ns: wr.cntrl
+with: wr.conf
 
 \ ====================================================================================
 \ Vars
 
 \ ===============================================================================
-\ The GPIO interface runs as a separate task
-\ The following words must only be called from the GPIO interface task!
+\ The GPIO interface runs as a separate task.
+\ All words in this file are private to the task.
+
+\ ===============================================================================
+\ ===============================================================================
+\ PRIVATE INTERFACE
 
 \ ====================================================================================
 \ Accessors for pinmap and gpiomap
@@ -319,6 +324,18 @@ ns: webrelay
 ;
 
 \ ===============================================================================
+\ ===============================================================================
+\ PUBLIC INTERFACE
+\ There is no public callable interface except for task creation.
+\ To create this task do something like the following (see relayconfig for valid types)
+\ "lpf" 1 ' GPIO_interface t:task-n "gpio-task" t:!
+\ To transition a relay channel on.
+\ 	"gpio-task" t:@ dup ["on", 1] const t:push t:q-notify
+\ To transition a relay channel off.
+\ 	"gpio-task" t:@ dup ["off", 1] const t:push t:q-notify
+\ To terminate the task.
+\ 	"gpio-task" t:@ dup ["quit", null] const t:push t:q-notify
+\ ===============================================================================
 \ The GPIO task word
 
 \ ========================================
@@ -329,7 +346,7 @@ ns: webrelay
 	"GPIO-Interface" t:name!
 	getq false q:throwing drop
 	\ Retrieve our configuration, save to task var
-	get_pinmap "pinmap" t:!
+	wr.conf:get_pinmap "pinmap" t:!
 	\ Create a map to hold the gpio instances, save to task var
 	m:new "gpiomap" t:!
 	\ Initialise interface
@@ -342,12 +359,14 @@ ns: webrelay
 \ ========================================
 \ Reset namespace
 ns: user
+;with
 
 \ ===============================================================================
 \ ===============================================================================
-\ Testing
+\ Module Testing
 relayctrl_test @ #if
-	ns: webrelay
+	with: wr.conf
+	with: wr.cntrl
 	relayctrl_word_test @ #if
 		\ ========================================
 		\ Test accessors
@@ -414,6 +433,8 @@ relayctrl_test @ #if
 		1 sleep
 	#then
 
+	;with
+	;with
 	bye
 #then
 
