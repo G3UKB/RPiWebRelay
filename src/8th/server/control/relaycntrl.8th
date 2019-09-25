@@ -25,7 +25,7 @@
 \ ========================================
 \ Testing only
 true var, relayctrl_test
-true var, relayctrl_word_test
+false var, relayctrl_word_test
 true var, relayctrl_func_test
 
 relayctrl_test @ #if
@@ -388,8 +388,26 @@ relayctrl_test @ #if
 		"Test simulation" . cr
 		"lpf" 1 ' GPIO_interface t:task-n "test-task" t:!
 		1 sleep
+		"Channel 1 ON ..." . cr
+		"test-task" t:@ dup ["on", 1] const t:push t:q-notify
+		1 sleep		
+		"Channel 2 ON ..." . cr
+		"test-task" t:@ dup ["on", 2] const t:push t:q-notify
+		1 sleep
+		"Channel 3 ON ..." . cr
+		"test-task" t:@ dup ["on", 3] const t:push t:q-notify
+		1 sleep
+		"Channel 4 ON ..." . cr
+		"test-task" t:@ dup ["on", 4] const t:push t:q-notify
+		1 sleep
+		"Channel 5 ON ..." . cr
 		"test-task" t:@ dup ["on", 5] const t:push t:q-notify
 		1 sleep
+		"Channel 6 ON ..." . cr
+		"test-task" t:@ dup ["on", 6] const t:push t:q-notify
+		1 sleep
+		
+		"Quiting ..." . cr	
 		"test-task" t:@ dup ["quit", null] const t:push t:q-notify
 		1 sleep
 	#then
