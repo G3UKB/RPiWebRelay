@@ -52,13 +52,22 @@ ns: webif
 \ Initialisation
 \ Create UDP socket
 \ --
-: create_socket	SED: --
-	{ "domain" : ` net:INET4 ` , "type" : ` net:DGRAM ` , "proto" : ` net:PROTO_UDP ` } net:socket "udp_cmd_sock" t:! ;
+: create_sock	SED: --
+	{ "domain" : ` net:INET4 ` , "type" : ` net:DGRAM ` , "proto" : ` net:PROTO_UDP ` } net:socket "udp_sock" t:! 
+;
 	
 \ Get command socket
 \ -- socket
-: cmd_sock@	SED: -- net
-	"udp_cmd_sock" t:@ ;
+: udp_sock@	SED: -- net
+	"udp_sock" t:@ 
+;
+	
+\ Bind command socket
+\ --
+: bind_sock SED: --
+	udp_sock@
+	RPi_RQST_IP RPi_RQST_PORT net:getaddrinfo swap net:bind
+;
 	
 \ ===============================================================================
 \ ===============================================================================
@@ -80,7 +89,36 @@ ns: webif
 \ The message pump
 \  --
 : msg_pump	SED:  --
-	
+	"Connector" t:name!
+		
+	\ Repeat until we get a term message
+	"Connector task waiting for run..." . cr
+	-1 t:q-wait 
+	t:pop >r r@ "quit" s:=ic if
+		cr "UDP Reader task exiting..." . ;;
+	else
+		r> dup "run" s:=ic if
+			drop "Connector task waiting for requests..." . cr
+			repeat
+				\ Wait on the socket for data
+				udp_sock @ WAIT_READ READ_TIMEOUT net:wait
+				if
+					\ We have a request
+					recv_pkt @ 0 net:recvfrom
+					null? if
+						cr "Read packet failed!" .
+					else
+						\ Good to go
+						
+					then
+				then
+				drop
+			again
+		else 
+			"Bad command to connector task: %s! - terminating" s:strfmt throw
+		then
+	then
+;
 
 \ ========================================
 \ The task entry point
@@ -89,6 +127,9 @@ ns: webif
 	\ Set task name and prevent throwing on q empty
 	"Connector" t:name!
 	getq false q:throwing drop
+	\ Create socket
+	create_sock
+	bind_sock
 	\ Process requests
 	msg_pump
 	cr "Connector task exiting..." .

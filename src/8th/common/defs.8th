@@ -1,7 +1,7 @@
 (* 
-	include.8th
+	defs.8th
  
-  Include all source files
+  All common definitions
  
  Copyright C 2019 by G3UKB Bob Cowdery
  This program is free software; you can redistribute it and/or modify
@@ -22,6 +22,8 @@
      bob@bobcowdery.plus.com
 *)
 
-"../common/defs.8th" f:include
-"../common/relayconfig.8th" f:include
-"../server/control/relaycntrl.8th" f:include
+: RPi_RQST_IP "192.168.1.115" ;	\ LPF RPi IP address
+\ : RPi_RQST_IP "localhost" ;		\ RPi testing IP address
+: RPi_RQST_PORT 10002 ;					\ RPi UDP port
+: READ_TIMEOUT 1000 ;						\ wait 1s for read data
+: WAIT_READ true ;							\ flag for select on read
