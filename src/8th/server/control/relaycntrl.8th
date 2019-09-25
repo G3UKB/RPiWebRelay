@@ -1,7 +1,7 @@
 (* 
-	webrelay.8th
+	relayctrl.8th
  
-  Simple RPi web relay manager.
+  Pin level control for relays.
  
  Copyright C 2019 by G3UKB Bob Cowdery
  This program is free software; you can redistribute it and/or modify
@@ -24,11 +24,12 @@
 
 \ ========================================
 \ Testing only
-true var, webrelay_test
-true var, webrelay_word_test
-true var, webrelay_func_test
+true var, relayctrl_test
+true var, relayctrl_word_test
+true var, relayctrl_func_test
 
-webrelay_test @ #if
+relayctrl_test @ #if
+	"../../common/relayconfig.8th" f:include
 	needs debug/sed
 	true SED-CHECK
 	\ needs debug/nicer	
@@ -42,57 +43,6 @@ ns: webrelay
 
 \ ====================================================================================
 \ Vars
-
-\ ====================================================================================
-\ Configuration
-\ 	- mainmap can have n arrays. We take the channel index pin from each array to energise or de-energise.
-\		- mapon (if present) array index 0 is the channels for which we should ALWAYS energise array index 1 pins.
-\		- mapoff (if present) array index 0 is the channels for which we should ALWAYS de-energise array index 1 pins.
-\		- inverse if true invert the logic i.e. a logic 1 turns the device attached to the channel off.
-\		- exclusive if true when energising turn all other channels to the off state before energising the given channel.
-
-\ Called from any task. Only store config locally!
-\ -- config 
-: lpf_pinmap	SED: -- m
-	{
-		"name" : "LPF",
-		"numchannels" : 6,
-		"mainmap" : [[27,22,5,6,13,26],[18,23,24,25,12,16]],
-		"mapon" : [[4,5,6],[4,17]],
-		"inverse" : true,
-		"exclusive" : true
-	}
-;
-
-\ -- config 
-: ports_pinmap	SED: -- m	
-	{
-		"name" : "Ports",
-		"numchannels" : 4,
-		"mainmap" : [[4,17,27,22]],
-		"inverse" : false,
-		"exclusive" : true
-	}
-;
-
-\ -- config 
-: power_pinmap	SED: -- m
-	{
-		"name" : "Power",
-		"numchannels" : 8,
-		"mainmap" : [[2,3,4,17,27,22,10,9]],
-		"inverse" : true,
-		"exclusive" : true
-	}
-;
-
-\ ========================================
-\ Get pinmap map for given name
-\ name -- pinmap
-: get_pinmap SED: s -- m
-	{ "lpf" : ' lpf_pinmap , "ports" : ' ports_pinmap , "power" : ' power_pinmap }
-	swap caseof
-;
 
 \ ===============================================================================
 \ The GPIO interface runs as a separate task
@@ -394,9 +344,9 @@ ns: user
 \ ===============================================================================
 \ ===============================================================================
 \ Testing
-webrelay_test @ #if
+relayctrl_test @ #if
 	ns: webrelay
-	webrelay_word_test @ #if
+	relayctrl_word_test @ #if
 		\ ========================================
 		\ Test accessors
 		\ Pin map
@@ -432,7 +382,7 @@ webrelay_test @ #if
 		1 sleep
 	#then
 
-	webrelay_func_test @ #if
+	relayctrl_func_test @ #if
 		\ ========================================
 		\ Test simulation
 		"Test simulation" . cr
