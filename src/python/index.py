@@ -59,16 +59,6 @@ def get_index(name, model, num_relays, exclusive):
               });
               e.preventDefault();
             });
-            $(".relay").on('click', function(event){
-                if (exclusive) {
-                    event.stopPropagation();
-                    event.stopImmediatePropagation();
-                    for (int id=1 ; id<=num_relays+1 ; id++) {
-                        $("#rly_1").checked(false);
-                    };
-                    event.checked(true);
-                }; 
-            });
           });
         </script>
     </head>
@@ -84,6 +74,18 @@ def get_index(name, model, num_relays, exclusive):
     ''' % (get_data(num_relays), get_header(name), get_content(model, num_relays), get_update(), get_footer())
     return index_html
 
+'''
+$(".relay").on('click', function(event){
+                if (exclusive) {
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
+                    for (int id=1 ; id<=num_relays+1 ; id++) {
+                        $("#rly_1").checked(false);
+                    };
+                    event.checked(true);
+                }; 
+            });
+'''
 #==============================================================================================
 # PRIVATE
 #==============================================================================================
