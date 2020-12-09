@@ -73,11 +73,11 @@ if __name__ == '__main__':
             num_relays = app_conf["num_relays"]
             pin_map = app_conf["pin_map"]
             ch_map_on = None
-            if "ch_map_on" in app_conf):
+            if "ch_map_on" in app_conf:
                 ch_map_on = app_conf["ch_map_on"]
             ch_map_off = None
-            if "ch_map_off" in app_conf):
-                ch_map_on = app_conf["ch_map_off"]
+            if "ch_map_off" in app_conf:
+                ch_map_off = app_conf["ch_map_off"]
             inverse = app_conf["inverse"]
             
             # Create web relay instance
