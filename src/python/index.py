@@ -76,7 +76,7 @@ def get_index(name, model, num_relays, exclusive):
         </div>
     </body>
     </html>
-    ''' % (get_data(num_relays, exclusive), get_header(name), get_content(model, num_relays), get_update(), get_footer())
+    ''' % (get_data(num_relays), get_header(name), get_content(model, num_relays), get_update(), get_footer())
     return index_html
 
 #==============================================================================================
