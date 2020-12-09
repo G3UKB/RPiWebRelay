@@ -48,7 +48,7 @@ class WebRelayMin(object):
     @cherrypy.expose
     def set_channel(self, relay='1', state='off'):
         print("Setting chsnnel %s to state %s." % (relay, state))
-        GPIO.set_relay(int(relay), state)
+        GPIO.set_channel(int(relay), state)
         return 'Channel set!'
 
 #==============================================================================================
