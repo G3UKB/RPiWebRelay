@@ -62,17 +62,21 @@ def get_index(name, model, num_relays, exclusive):
               });
               e.preventDefault();
             });
-            $(".relay").on('click', function(event){
+            $(".relayon").on('click', function(event){
                 if (%s) {
-                    alert(event.currentTarget.val());
+                    /*alert($(this).val());*/
+                    /*alert($(this).attr("checked"));*/
+                    
+                    var id;
+                    
+                    for (id=1 ; id<=%s ; id++) {
+                        /*$("#relayon-" + id.toString()).attr("checked", false);*/
+                        /*$("#relayoff-" + id.toString()).attr("checked", true);*/
+                        $(".relayoff").prop("checked", true);
+                    };
+                    $(this).prop("checked", true);
                     event.stopPropagation();
                     event.stopImmediatePropagation();
-                    var id;
-                    for (id=1 ; id<=%s ; id++) {
-                        $("#relayon-" + id.toString()).attr("checked", false);
-                        $("#relayoff-" + id.toString()).attr("checked", true);
-                    };
-                    this.attr("checked", true);
                 }; 
             });
           });
@@ -147,8 +151,8 @@ def get_content(model, num_relays):
             <td>%d</td>
             <td><input type="text" class="names" name="relay-%d-name" value={}></td>
             <td>
-                <input type="radio" id="relayon-%d" name="relay-%d" class="relay" checked="false" value="on">On
-                <input type="radio" id="relayoff-%d" name="relay-%d" class="relay" checked="true" value="off">Off
+                <input type="radio" id="relayon-%d" name="relay-%d" class="relayon" checked="false" value="on">On
+                <input type="radio" id="relayoff-%d" name="relay-%d" class="relayoff" checked="true" value="off">Off
             </td>
         </tr> ''' % (id, id, id, id, id, id)
         content = content.format(m[id].replace(" ", "&nbsp;")) 
