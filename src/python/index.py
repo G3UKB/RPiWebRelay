@@ -38,7 +38,10 @@ import pickle
 #-------------------------------------------------
 # Main index HTML     
 def get_index(name, model, num_relays, exclusive):
-    
+    if exclusive:
+        exclusive = 'true'
+    else:
+        exclusive = 'false'
     index_html = '''
     <html>
     <head>
@@ -60,15 +63,16 @@ def get_index(name, model, num_relays, exclusive):
               e.preventDefault();
             });
             $(".relay").on('click', function(event){
-                if (exclusive) {
-                alert("here");
+                if (%s) {
+                    alert(event.currentTarget.val());
                     event.stopPropagation();
                     event.stopImmediatePropagation();
                     var id;
-                    for (id=1 ; id<=num_relays+1 ; id++) {
-                        $("#rly_1").checked(false);
+                    for (id=1 ; id<=%s ; id++) {
+                        $("#relayon-" + id.toString()).attr("checked", false);
+                        $("#relayoff-" + id.toString()).attr("checked", true);
                     };
-                    event.checked(true);
+                    this.attr("checked", true);
                 }; 
             });
           });
@@ -83,19 +87,23 @@ def get_index(name, model, num_relays, exclusive):
         </div>
     </body>
     </html>
-    ''' % (get_data(num_relays), get_header(name), get_content(model, num_relays), get_update(), get_footer())
+    ''' % (get_data(num_relays), exclusive, str(num_relays), get_header(name), get_content(model, num_relays), get_update(), get_footer())
     return index_html
 
 '''
+id="relayon-%d" 
+exclusive, str(num_relays), 
 $(".relay").on('click', function(event){
-                if (exclusive) {
+                if (%s) {
                     event.stopPropagation();
                     event.stopImmediatePropagation();
+                    
                     var id;
-                    for (id=1 ; id<=num_relays+1 ; id++) {
-                        $("#rly_1").checked(false);
+                    for (id=1 ; id<=%s ; id++) {
+                        $("#relayon-" + id).attr("checked", false);
+                        $("#relayoff-" + id).attr("checked", true);
                     };
-                    event.checked(true);
+                    event.prop("checked", true);
                 }; 
             });
 '''
@@ -139,10 +147,10 @@ def get_content(model, num_relays):
             <td>%d</td>
             <td><input type="text" class="names" name="relay-%d-name" value={}></td>
             <td>
-                <input type="radio" name="relay-%d" class="relay" checked="false" value="on">On
-                <input type="radio" name="relay-%d" class="relay" checked="true" value="off">Off
+                <input type="radio" id="relayon-%d" name="relay-%d" class="relay" checked="false" value="on">On
+                <input type="radio" id="relayoff-%d" name="relay-%d" class="relay" checked="true" value="off">Off
             </td>
-        </tr> ''' % (id, id, id, id)
+        </tr> ''' % (id, id, id, id, id, id)
         content = content.format(m[id].replace(" ", "&nbsp;")) 
     content = content + "</table>"
     
