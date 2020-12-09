@@ -110,7 +110,12 @@ class GPIOControl:
         # Process additional relays
         self.__postcal()
     
-                    
+    #-------------------------------------------------
+    # Cleanup else next invocation will fail.
+    def cleanup(self):
+        GPIO.cleanup() # cleanup all GPIO
+        
+    
     #==============================================================================================
     # PRIVATE
     #==============================================================================================

@@ -60,9 +60,9 @@ class WebRelay:
 @cherrypy.expose
 class WebRelayWebService(object):
     
-    def __init__(self, num_relays, pin_map, aux_map, inverse):
+    def __init__(self, GPIOInst):
         # Create web relay instance
-        self.GPIO = webrelay_gpio.GPIOControl(num_relays, pin_map, aux_map, inverse)
+        self.GPIO = GPIOInst
         
     @cherrypy.tools.accept(media='text/plain')
     #-------------------------------------------------
@@ -262,6 +262,9 @@ if __name__ == '__main__':
             model = webrelay_model.WebRelayModel(num_relays)
             model.restore_model()
             
+            # Create web relay instance
+            GPIOInst = webrelay_gpio.GPIOControl(num_relays, pin_map, aux_map, inverse)
+        
             # Get configuration file
             cherrypy_conf = os.path.join(os.path.dirname(__file__), 'cherrypy.conf')
             # Create web app instances
@@ -269,10 +272,14 @@ if __name__ == '__main__':
             webService = [WebRelayWebService_1, WebRelayWebService_2, WebRelayWebService_3, WebRelayWebService_4,
                           WebRelayWebService_5,WebRelayWebService_6,WebRelayWebService_7,WebRelayWebService_8,
                           WebRelayWebService_9,WebRelayWebService_10,WebRelayWebService_11,WebRelayWebService_12]
-            webapp.webrelay_service = webService[num_relays-1](num_relays, pin_map, aux_map, inverse)
+            webapp.webrelay_service = webService[num_relays-1](GPIOInst)
         
             # Start
             cherrypy.quickstart(webapp, config=cherrypy_conf)
+            
+            # Cleanup
+            GPIOInst.cleanup()
+            
         else:
             print("Configuration file not found!")
     
