@@ -60,9 +60,14 @@ def get_index(name, model, num_relays, exclusive):
               e.preventDefault();
             });
             $(".relay").on('click', function(event){
-                event.stopPropagation();
-                event.stopImmediatePropagation();
-                alert(event);
+                if (exclusive) {
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
+                    for (int id=1 ; id<=num_relays+1 ; id++) {
+                        $("#rly_1").checked(false);
+                    };
+                    event.checked(true);
+                }; 
             });
           });
         </script>
