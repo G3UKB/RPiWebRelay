@@ -61,6 +61,7 @@ def get_index(name, model, num_relays, exclusive):
             });
             $(".relay").on('click', function(event){
                 if (exclusive) {
+                alert("here");
                     event.stopPropagation();
                     event.stopImmediatePropagation();
                     var id;
