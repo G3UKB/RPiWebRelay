@@ -37,7 +37,7 @@ import pickle
  
 #-------------------------------------------------
 # Main index HTML     
-def get_index(name, model, num_relays):
+def get_index(name, model, num_relays, exclusive):
     
     index_html = '''
     <html>
@@ -59,6 +59,11 @@ def get_index(name, model, num_relays):
               });
               e.preventDefault();
             });
+            $(".relay").on('click', function(event){
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+                alert(event);
+            });
           });
         </script>
     </head>
@@ -71,7 +76,7 @@ def get_index(name, model, num_relays):
         </div>
     </body>
     </html>
-    ''' % (get_data(num_relays), get_header(name), get_content(model, num_relays), get_update(), get_footer())
+    ''' % (get_data(num_relays, exclusive), get_header(name), get_content(model, num_relays), get_update(), get_footer())
     return index_html
 
 #==============================================================================================
@@ -114,8 +119,8 @@ def get_content(model, num_relays):
             <td>%d</td>
             <td><input type="text" class="names" name="relay-%d-name" value={}></td>
             <td>
-                <input type="radio" name="relay-%d" checked="false" value="on">On
-                <input type="radio" name="relay-%d" checked="true" value="off">Off
+                <input type="radio" name="relay-%d" class="relay" checked="false" value="on">On
+                <input type="radio" name="relay-%d" class="relay" checked="true" value="off">Off
             </td>
         </tr> ''' % (id, id, id, id)
         content = content.format(m[id].replace(" ", "&nbsp;")) 

@@ -41,17 +41,18 @@ import webrelay_model
 #===================================================== 
 class WebRelay:
 
-    def __init__(self, name, model, num_relays):
+    def __init__(self, name, model, num_relays, exclusive):
         self.__name = name
         self.__model = model
         self.__num_relays = num_relays
+        self.__exclusive = exclusive
         
     # Expose the index method through the web
     @cherrypy.expose
     def index(self):
         # CherryPy will call this method for the root URI ("/") and send
         # its return value to the client.
-        return index.get_index(self.__name, self.__model, self.__num_relays)
+        return index.get_index(self.__name, self.__model, self.__num_relays, self.__exclusive)
 
 #=====================================================
 # The web service class
@@ -59,7 +60,7 @@ class WebRelay:
 @cherrypy.expose
 class WebRelayWebService(object):
     
-    def __init__(self, num_relays, pin_map, aux_map, inverse, exclusive):
+    def __init__(self, num_relays, pin_map, aux_map, inverse):
         # Create web relay instance
         self.GPIO = webrelay_gpio.GPIOControl(num_relays, pin_map, aux_map, inverse)
         
@@ -264,11 +265,11 @@ if __name__ == '__main__':
             # Get configuration file
             cherrypy_conf = os.path.join(os.path.dirname(__file__), 'cherrypy.conf')
             # Create web app instances
-            webapp = WebRelay(name, model, num_relays)
+            webapp = WebRelay(name, model, num_relays, exclusive)
             webService = [WebRelayWebService_1, WebRelayWebService_2, WebRelayWebService_3, WebRelayWebService_4,
                           WebRelayWebService_5,WebRelayWebService_6,WebRelayWebService_7,WebRelayWebService_8,
                           WebRelayWebService_9,WebRelayWebService_10,WebRelayWebService_11,WebRelayWebService_12]
-            webapp.webrelay_service = webService[num_relays-1](num_relays, pin_map, aux_map, inverse, exclusive)
+            webapp.webrelay_service = webService[num_relays-1](num_relays, pin_map, aux_map, inverse)
         
             # Start
             cherrypy.quickstart(webapp, config=cherrypy_conf)
