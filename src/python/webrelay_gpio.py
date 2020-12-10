@@ -113,7 +113,8 @@ class GPIOControl:
     #-------------------------------------------------
     # Cleanup else next invocation will fail.
     def cleanup(self):
-        GPIO.cleanup() # cleanup all GPIO
+        if not testing:
+            GPIO.cleanup() # cleanup all GPIO
         
     
     #==============================================================================================

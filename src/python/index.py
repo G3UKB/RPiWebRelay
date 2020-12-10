@@ -64,16 +64,7 @@ def get_index(name, model, num_relays, exclusive):
             });
             $(".relayon").on('click', function(event){
                 if (%s) {
-                    /*alert($(this).val());*/
-                    /*alert($(this).attr("checked"));*/
-                    
-                    var id;
-                    
-                    for (id=1 ; id<=%s ; id++) {
-                        /*$("#relayon-" + id.toString()).attr("checked", false);*/
-                        /*$("#relayoff-" + id.toString()).attr("checked", true);*/
-                        $(".relayoff").prop("checked", true);
-                    };
+                    $(".relayoff").prop("checked", true);
                     $(this).prop("checked", true);
                     event.stopPropagation();
                     event.stopImmediatePropagation();
@@ -91,26 +82,9 @@ def get_index(name, model, num_relays, exclusive):
         </div>
     </body>
     </html>
-    ''' % (get_data(num_relays), exclusive, str(num_relays), get_header(name), get_content(model, num_relays), get_update(), get_footer())
+    ''' % (get_data(num_relays), exclusive, get_header(name), get_content(model, num_relays), get_update(), get_footer())
     return index_html
 
-'''
-id="relayon-%d" 
-exclusive, str(num_relays), 
-$(".relay").on('click', function(event){
-                if (%s) {
-                    event.stopPropagation();
-                    event.stopImmediatePropagation();
-                    
-                    var id;
-                    for (id=1 ; id<=%s ; id++) {
-                        $("#relayon-" + id).attr("checked", false);
-                        $("#relayoff-" + id).attr("checked", true);
-                    };
-                    event.prop("checked", true);
-                }; 
-            });
-'''
 #==============================================================================================
 # PRIVATE
 #==============================================================================================
