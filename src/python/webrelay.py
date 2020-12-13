@@ -273,7 +273,12 @@ if __name__ == '__main__':
                           WebRelayWebService_5,WebRelayWebService_6,WebRelayWebService_7,WebRelayWebService_8,
                           WebRelayWebService_9,WebRelayWebService_10,WebRelayWebService_11,WebRelayWebService_12]
             webapp.webrelay_service = webService[num_relays-1](GPIOInst)
-        
+            
+            # Turn off logging
+            access_log = cherrypy.log.access_log
+            for handler in tuple(access_log.handlers):
+                access_log.removeHandler(handler)
+                
             # Start
             cherrypy.quickstart(webapp, config=cherrypy_conf)
             

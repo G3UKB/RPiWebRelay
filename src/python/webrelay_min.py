@@ -85,6 +85,12 @@ if __name__ == '__main__':
             
             # Get configuration file
             cherrypy_conf = os.path.join(os.path.dirname(__file__), 'cherrypy_min.conf')
+            
+            # Turn off logging
+            access_log = cherrypy.log.access_log
+            for handler in tuple(access_log.handlers):
+                access_log.removeHandler(handler)
+                
             # Start
             cherrypy.quickstart(WebRelayMin(name), config=cherrypy_conf)
         else:
